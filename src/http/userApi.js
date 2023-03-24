@@ -2,16 +2,17 @@ import { $authHost,$host } from ".";
 import axios from "axios";
 import jwt_decode from 'jwt-decode';
 
-const login =async (userName,password) =>{
-    const {data} = await $host.post('api/auth/login',{userName,password})
+const login =async (email,userName,password) =>{
+    const {data} = await $host.post('api/auth/login',{email,userName,password})
     localStorage.setItem('token',data.jwt)
     return jwt_decode(data.jwt)
 }
 
-const registration = (userName, password) => {
+const registration = (email,userName, password) => {
     return $host.post('api/auth/register', {
         userName,
-        password
+        password,
+        email
     });
 };
 

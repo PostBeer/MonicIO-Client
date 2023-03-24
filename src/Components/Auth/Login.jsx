@@ -8,13 +8,14 @@ import { Context } from "../..";
 const Login = observer(() =>{
     const [name,setName] = useState();
     const [password,setPassword]=useState();
+    const [email,setEmail]=useState();
     const {user} = useContext(Context);
     let navigate = useNavigate();
 
     const signUp = async()=>{
         let data;
         try {
-            data = await login(name,password,navigate);
+            data = await login(email,name,password,navigate);
             user.setUser(data);
             console.log(user.user)
             user.setIsAuth(true);
@@ -36,8 +37,14 @@ const Login = observer(() =>{
                     <div class="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
                         <form>
                             <div class="form-outline mb-4">
-                                <input type="email" onChange={e =>setName(e.target.value)} id="form1Example13" class="form-control form-control-lg" />
+                                <input type="name" onChange={e =>setName(e.target.value)} id="form1Example13" class="form-control form-control-lg" />
                                 <label class="form-label" for="form1Example13">Имя</label>
+                            </div>
+
+                            <div className="form-outline mb-4">
+                                <input type="email" onChange={e => setEmail(e.target.value)} id="form1Example13"
+                                       className="form-control form-control-lg"/>
+                                <label className="form-label" htmlFor="form1Example13">Почта</label>
                             </div>
 
                             <div class="form-outline mb-4">

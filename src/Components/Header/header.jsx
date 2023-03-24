@@ -13,6 +13,7 @@ const Header = observer(() =>{
     const logOut = () =>{
         user.setUser({});
         user.setIsAuth(false);
+        console.log(jwt_decode(localStorage.getItem('token')))
         localStorage.removeItem('token');
     }
 

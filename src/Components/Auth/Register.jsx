@@ -5,10 +5,11 @@ import { registration } from "../../http/userApi";
 const Register = () =>{
     const [name,setName] = useState();
     const [password,setPassword]=useState();
+    const [email,setEmail]=useState();
 
 
     const signIn = async() =>{
-        const response = await registration(name,password);
+        const response = await registration(email,name,password);
         console.log(response)
     }
 
@@ -31,6 +32,15 @@ const Register = () =>{
                                                 <div class="form-outline flex-fill mb-0">
                                                     <input type="email" onChange={e =>setName(e.target.value)} id="form3Example3c" class="form-control" />
                                                     <label class="form-label" for="form3Example3c">Ваше имя</label>
+                                                </div>
+                                            </div>
+
+                                            <div className="d-flex flex-row align-items-center mb-4">
+                                                <i className="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                                                <div className="form-outline flex-fill mb-0">
+                                                    <input type="email" onChange={e => setEmail(e.target.value)}
+                                                           id="form3Example3c" className="form-control"/>
+                                                    <label className="form-label" htmlFor="form3Example3c">Ваша почта</label>
                                                 </div>
                                             </div>
 
