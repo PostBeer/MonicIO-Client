@@ -94,7 +94,7 @@ const Register = () =>{
                                                 </div>
                                             </div>
                                             <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
-                                                <NavLink to="/register" onClick={signIn} class="btn btn-primary btn-lg">Register</NavLink>
+                                                <NavLink to={to} onClick={signIn} class="btn btn-primary btn-lg">Register</NavLink>
                                             </div>
 
                                         </form>
