@@ -7,10 +7,36 @@ const Register = () =>{
     const [password,setPassword]=useState();
     const [email,setEmail]=useState();
 
+    const [nameError, setNameError] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    let to = "/login"
 
     const signIn = async() =>{
-        const response = await registration(email,name,password);
-        console.log(response)
+       await registration(email,name,password)
+           .catch((error) => {
+               if(error.response.data.fieldErrors) {
+                   error.response.data.fieldErrors.forEach(fieldError => {
+                       switch (fieldError.field){
+                           case 'name': {
+                               setNameError(fieldError.message);
+                               to = "/register";
+                               break;
+                           }
+                           case 'email': {
+                               setEmailError(fieldError.message);
+                               to = "/register";
+                               break;
+                           }
+                           case 'password': {
+                               setPasswordError(fieldError.message);
+                               to = "/register";
+                               break;
+                           }
+                       }
+                   });
+               }
+           })
     }
 
     return (
@@ -30,6 +56,9 @@ const Register = () =>{
                                             <div class="d-flex flex-row align-items-center mb-4">
                                                 <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
                                                 <div class="form-outline flex-fill mb-0">
+                                                    {
+                                                        nameError ? <span style={{ color: 'red', fontSize: '12px'}}>{nameError}</span> : ''
+                                                    }
                                                     <input type="email" onChange={e =>setName(e.target.value)} id="form3Example3c" class="form-control" />
                                                     <label class="form-label" for="form3Example3c">Ваше имя</label>
                                                 </div>
@@ -38,6 +67,9 @@ const Register = () =>{
                                             <div className="d-flex flex-row align-items-center mb-4">
                                                 <i className="fas fa-envelope fa-lg me-3 fa-fw"></i>
                                                 <div className="form-outline flex-fill mb-0">
+                                                    {
+                                                        emailError ? <span style={{ color: 'red', fontSize: '12px'}}>{emailError}</span> : ''
+                                                    }
                                                     <input type="email" onChange={e => setEmail(e.target.value)}
                                                            id="form3Example3c" className="form-control"/>
                                                     <label className="form-label" htmlFor="form3Example3c">Ваша почта</label>
@@ -47,12 +79,15 @@ const Register = () =>{
                                             <div class="d-flex flex-row align-items-center mb-4">
                                                 <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
                                                 <div class="form-outline flex-fill mb-0">
+                                                    {
+                                                        passwordError ? <span style={{ color: 'red', fontSize: '12px'}}>{passwordError}</span> : ''
+                                                    }
                                                     <input type="password"  onChange={e =>setPassword(e.target.value)} id="form3Example4c" class="form-control" />
                                                     <label class="form-label" for="form3Example4c">Ваш пароль</label>
                                                 </div>
                                             </div>
                                             <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
-                                                <NavLink to="/login" onClick={signIn} class="btn btn-primary btn-lg">Register</NavLink>
+                                                <NavLink to="/register" onClick={signIn} class="btn btn-primary btn-lg">Register</NavLink>
                                             </div>
 
                                         </form>
