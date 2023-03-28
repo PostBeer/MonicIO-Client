@@ -10,11 +10,15 @@ const Register = () =>{
     const [nameError, setNameError] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [userExistError, setUserExistError] = useState('');
     let to = "/login"
 
     const signIn = async() =>{
        await registration(email,name,password)
            .catch((error) => {
+               if(error.response.data.message === "Такой пользователь уже существует!") {
+                   setUserExistError(error.response.data.message);
+               }
                if(error.response.data.fieldErrors) {
                    error.response.data.fieldErrors.forEach(fieldError => {
                        switch (fieldError.field){
@@ -56,6 +60,9 @@ const Register = () =>{
                                             <div class="d-flex flex-row align-items-center mb-4">
                                                 <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
                                                 <div class="form-outline flex-fill mb-0">
+                                                    {
+                                                        userExistError ? <span style={{ color: 'red', fontSize: '12px'}}>{userExistError}</span> : ''
+                                                    }
                                                     {
                                                         nameError ? <span style={{ color: 'red', fontSize: '12px'}}>{nameError}</span> : ''
                                                     }

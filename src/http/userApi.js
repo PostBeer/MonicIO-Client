@@ -30,26 +30,10 @@ const check = async () =>{
     })
 }
 
-const getAll = async ()=>{
-    const {data} = await $authHost.get('api/user/getall');
-    return data;
-}
 
-const deleteUser = async (email,role) =>{
-    const {data} = await $authHost.post('api/user/delete',{email,role})
-    return data;
-}
-
-const updateUser = async (role,id)=>{
-    const {data} = await $authHost.post('api/user/update',{role,id})
-    return data;
-}
 
 export {
     login,
     registration,
-    check,
-    getAll,
-    deleteUser,
-    updateUser
+    check
 }
