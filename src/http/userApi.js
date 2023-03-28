@@ -13,7 +13,7 @@ const registration = (email,userName, password) => {
         userName,
         password,
         email
-    });
+    })
 };
 
 const getToken=()=>{
