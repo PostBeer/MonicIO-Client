@@ -8,12 +8,40 @@ const login =async (email,userName,password) =>{
     return jwt_decode(data.jwt)
 }
 
-const registration = (email,userName, password) => {
-    return $host.post('api/auth/register', {
+const registration = async (email,userName, password,setNameError,setEmailError,setUserExistError,setPasswordError) => {
+    let err;
+    await $host.post('api/auth/register', {
         userName,
         password,
         email
+    }).then(()=>{err=false}).catch((error) => {
+        err=true;
+        console.log(error.response.data.message)
+        if(error.response.data.message) {
+            setUserExistError(error.response.data.message);
+        }
+        if(error.response.data.fieldErrors) {
+            error.response.data.fieldErrors.forEach(fieldError => {
+                console.log(fieldError)
+                switch (fieldError.field){
+                    case 'name': {
+                        setNameError(fieldError.message);
+                        break;
+                    }
+                    case 'email': {
+                        setEmailError(fieldError.message);
+                        break;
+                    }
+                    case 'password': {
+                        setPasswordError(fieldError.message);
+                        break;
+                    }
+                }
+            });
+        }
     })
+    console.log(err)
+    return err;
 };
 
 const getToken=()=>{
@@ -30,10 +58,15 @@ const check = async () =>{
     })
 }
 
+const checkEdit = async (userName,email,password)=>{
+   return $host.post('account/edit',{email,userName,password})
+}
+
 
 
 export {
     login,
     registration,
-    check
+    check,
+    checkEdit
 }

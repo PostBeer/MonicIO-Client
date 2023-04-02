@@ -10,6 +10,7 @@ import { observer } from 'mobx-react-lite';
 
 
 import React from 'react';
+import Account from "./Components/Account/Account";
 const App = observer((props) => {
     const {user}= useContext(Context);
 
@@ -29,7 +30,8 @@ const App = observer((props) => {
                 <Header />
                 <Routes>
                     <Route path="/login" element={<Login/>}/>
-                    <Route path="/register" element={<Register/>}/>
+                    <Route path="/register" element={<Register error={user.error}/>}/>
+                    <Route path="/account" element={<Account/>}/>
                 </Routes>
             </div>
         </BrowserRouter>

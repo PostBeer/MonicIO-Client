@@ -1,46 +1,25 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import {NavLink, useNavigate} from "react-router-dom";
 import { registration } from "../../http/userApi";
+import {useContext} from "react";
+import {Context} from "../../index";
+import {observer} from "mobx-react-lite";
 
-const Register = () =>{
+
+
+const Register =  observer((props) =>{
+    const {user} = useContext(Context);
     const [name,setName] = useState();
     const [password,setPassword]=useState();
     const [email,setEmail]=useState();
-
     const [nameError, setNameError] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [userExistError, setUserExistError] = useState('');
-    let to = "/login"
 
-    const signIn = async() =>{
-       await registration(email,name,password)
-           .catch((error) => {
-               if(error.response.data.message === "Такой пользователь уже существует!") {
-                   setUserExistError(error.response.data.message);
-               }
-               if(error.response.data.fieldErrors) {
-                   error.response.data.fieldErrors.forEach(fieldError => {
-                       switch (fieldError.field){
-                           case 'name': {
-                               setNameError(fieldError.message);
-                               to = "/register";
-                               break;
-                           }
-                           case 'email': {
-                               setEmailError(fieldError.message);
-                               to = "/register";
-                               break;
-                           }
-                           case 'password': {
-                               setPasswordError(fieldError.message);
-                               to = "/register";
-                               break;
-                           }
-                       }
-                   });
-               }
-           })
+    const signIn =  async () =>{
+        const err = await registration(email, name, password,setNameError,setUserExistError,setEmailError,setPasswordError)
+        user.setError(err)
     }
 
     return (
@@ -94,7 +73,7 @@ const Register = () =>{
                                                 </div>
                                             </div>
                                             <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
-                                                <NavLink to={to} onClick={signIn} class="btn btn-primary btn-lg">Register</NavLink>
+                                                <NavLink to={ props.error ? '/register':'/login'} onClick={signIn} class="btn btn-primary btn-lg">Register</NavLink>
                                             </div>
 
                                         </form>
@@ -114,6 +93,6 @@ const Register = () =>{
             </div>
         </section>
     );
-}
+})
 
 export default Register;

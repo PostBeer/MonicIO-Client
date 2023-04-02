@@ -3,9 +3,17 @@ export default class UserStore {
     constructor(){
         this._isAuth = false;
         this._user={};
+        this._error=false;
         makeAutoObservable(this);
     }
 
+    setError(error){
+        this._error=error;
+    }
+
+    get error(){
+        return this._error;
+    }
 
     setIsAuth(bool){
         this._isAuth=bool;

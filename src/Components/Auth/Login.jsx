@@ -17,6 +17,7 @@ const Login = observer(() =>{
         let data;
         try {
             data = await login(email,name,password,navigate);
+            console.log(data);
             user.setUser(data);
             user.setIsAuth(true);
             navigate('/');

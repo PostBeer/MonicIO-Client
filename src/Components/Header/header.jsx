@@ -43,7 +43,7 @@ const Header = observer(() =>{
                         }
                         {user.isAuth &&
                             <li class="nav-item">
-                                <NavLink className='nav-link' to="/">Что-то</NavLink>
+                                <NavLink className='nav-link' to="/account">Личный кабинет</NavLink>
                             </li>
                         }
                         {!user.isAuth &&
