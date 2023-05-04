@@ -1,7 +1,6 @@
 import {NavLink, useLocation} from "react-router-dom";
 import {useContext} from "react";
 import {Context} from "../index";
-import {Anchor} from "react-bootstrap";
 
 export const SideBar = () => {
     const location = useLocation()
@@ -17,12 +16,17 @@ export const SideBar = () => {
                         <span>Мониторинг проектов</span>
                     </NavLink>
                 </li>
-
+                <li className="nav-item">
+                    <NavLink className={location.pathname === '/projects' ? 'nav-link' : 'nav-link collapsed'} to="/home">
+                        <i className="bi bi-journal-code"></i>
+                        <span>Проекты</span>
+                    </NavLink>
+                </li>
 
                 <li className="nav-item">
                     <NavLink className="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse"
-                             to="/profile">
-                        <i className="bi bi-menu-button-wide"></i><span>Проекты</span><i
+                             to="/projects">
+                        <i className="bi bi-menu-button-wide"></i><span>Мои проекты</span><i
                         className="bi bi-chevron-down ms-auto"></i>
                     </NavLink>
                     <ul id="components-nav" className="nav-content collapse " data-bs-parent="#sidebar-nav">
@@ -51,11 +55,17 @@ export const SideBar = () => {
                 </li>
                 {user.isPM && < li className="nav-item">
                     <NavLink className={location.pathname === '/team' ? 'nav-link' : 'nav-link collapsed'}
-                    to="/profile">
-                    <i className="bi bi-people"></i>
-                    <span>Сотрудники</span>
+                             to="/profile">
+                        <i className="bi bi-people"></i>
+                        <span>Сотрудники</span>
                     </NavLink>
-                    </li>}
+                </li>}
+                <li className="nav-item">
+                    <NavLink className={location.pathname === '/tasks' ? 'nav-link' : 'nav-link collapsed'} to="/home">
+                        <i className="bi bi-clipboard-check"></i>
+                        <span>Мои задачи</span>
+                    </NavLink>
+                </li>
                 <li className="nav-item">
                     <NavLink className={location.pathname === '/profile' ? 'nav-link' : 'nav-link collapsed'}
                              to="/profile">
