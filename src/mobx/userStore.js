@@ -1,34 +1,34 @@
 import {makeAutoObservable} from 'mobx';
+
 export default class UserStore {
-    constructor(){
+    constructor() {
         this._isAuth = false;
-        this._user={};
-        this._error=false;
+        this._user = {};
         makeAutoObservable(this);
     }
 
-    setError(error){
-        this._error=error;
+
+    setIsAuth(bool) {
+        this._isAuth = bool;
     }
 
-    get error(){
-        return this._error;
-    }
-
-    setIsAuth(bool){
-        this._isAuth=bool;
-    }
-
-    setUser(user){
-        this._user=user;
+    setUser(user) {
+        this._user = user;
     }
 
 
-    get isAuth(){
+    get isAuth() {
         return this._isAuth;
     }
 
-    get user(){
+    get user() {
         return this._user;
+    }
+
+    get isPM() {
+        if (this._user.isAuth) {
+            return !!this._user.roles.includes("PROJECT_MANAGER");
+        } else
+            return false
     }
 }
