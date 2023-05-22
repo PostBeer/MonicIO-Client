@@ -24,8 +24,11 @@ const Login = observer(() => {
                 navigate('/');
             }
         ).catch(errors => {
-            console.log(errors)
-            setError(Object.fromEntries(errors.response.data.map(fieldError=>[fieldError.field,fieldError.defaultMessage])))
+            if (errors.response.data) {
+                setError(Object.fromEntries(errors.response.data.map(fieldError => [fieldError.field, fieldError.defaultMessage])))
+            }else {
+                setError({password:'Неверное имя пользователя или пароль'})
+            }
         }).finally(()=>setLoading(false))
     }
     return (

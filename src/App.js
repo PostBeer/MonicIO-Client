@@ -1,7 +1,7 @@
 import {BrowserRouter, Route, Routes} from 'react-router-dom'
 import React, {useContext, useEffect, useState} from 'react';
 import {Context} from './index';
-import {check} from './http/userApi';
+import {check, getToken} from './http/userApi';
 import {observer} from 'mobx-react-lite';
 import ReactLoading from "react-loading"
 import 'bootstrap/dist/css/bootstrap.css';
@@ -13,6 +13,7 @@ import {authRoutes, publicRoutes} from "./routes";
 import 'dayjs/locale/ru'
 import dayjs from "dayjs";
 import avatar from "./assets/img/profile-img.jpg"
+import {loadProjects} from "./http/projectApi";
 
 dayjs.locale('ru')
 
@@ -24,19 +25,25 @@ export const avatarPicture = (userWithAvatar) => {
     }
 }
 
-const App = observer((props) => {
+const App = observer(() => {
 
     const [loading, setLoading] = useState(true);
     const {user} = useContext(Context);
-
+    const {projects} = useContext(Context)
     useEffect(() => {
         setTimeout(()=>{
             setLoading(true)
             check().then(data => {
                 user.setUser(data.data)
-                console.log(data.data)
                 user.setIsAuth(true)
+                user.setIsPM(data.data.roles.includes("PROJECT_MANAGER"))
+                console.log(getToken())
+
             }).finally(() => setLoading(false))
+            loadProjects(`http://localhost:8080/api/projects`).then((response) => {
+                projects.setProjects(response.data._embedded.projects)
+                projects.setLinks(response.data._links)
+            })
         },100)
     }, [])
 
@@ -46,8 +53,6 @@ const App = observer((props) => {
             className={"col-md-8 mx-auto h-100"} type={"bubbles"} color={"blue"} height={'20vh'}
             width={'20vh'}></ReactLoading></div>)
     } else {
-        console.log(user.isPM)
-        console.log(user.user?.roles?.includes("PROJECT_MANAGER"))
         return (
             <div className="App">
                 <BrowserRouter>

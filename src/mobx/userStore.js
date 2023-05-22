@@ -4,6 +4,7 @@ export default class UserStore {
     constructor() {
         this._isAuth = false;
         this._user = {};
+        this._isPM = false;
         makeAutoObservable(this);
     }
 
@@ -16,6 +17,10 @@ export default class UserStore {
         this._user = user;
     }
 
+    setIsPM(bool) {
+        this._isPM = bool;
+    }
+
 
     get isAuth() {
         return this._isAuth;
@@ -26,9 +31,6 @@ export default class UserStore {
     }
 
     get isPM() {
-        if (this._user.isAuth) {
-            return !!this._user.roles.includes("PROJECT_MANAGER");
-        } else
-            return false
+        return this._isPM;
     }
 }

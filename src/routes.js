@@ -6,6 +6,7 @@ import {ErrorPage} from "./Components/ErrorPage";
 import {FAQ} from "./Components/FAQ";
 import {Contact} from "./Components/Contact";
 import {Project} from "./Components/Project";
+import {ProjectList} from "./Components/ProjectList";
 
 
 export const authRoutes = [
@@ -35,6 +36,10 @@ export const authRoutes = [
     },
     {
         path: '/projects',
+        Component: ProjectList
+    },
+    {
+        path: '/projects/:id',
         Component: Project
     }
 

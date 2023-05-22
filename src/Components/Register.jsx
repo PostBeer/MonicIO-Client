@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {NavLink} from "react-router-dom";
+import {NavLink, useNavigate} from "react-router-dom";
 import {registration} from "../http/userApi";
 import logo from "../assets/img/logo.png";
 import {Button, Form, InputGroup, Row, Spinner} from "react-bootstrap";
@@ -13,15 +13,19 @@ const Register = () => {
     const [password, setPassword] = useState();
     const [passwordConfirm, setPasswordConfirm] = useState();
     const [error, setError] = useState()
-    const [loading, setLoading] = useState();
+    const [loading, setLoading] = useState(false);
     const [checked, setChecked] = useState(false);
     const [role, setRole] = useState('USER');
+    const navigate = useNavigate();
     const signUp = async () => {
+        setLoading(true)
         setError()
         await registration(username, name, surname, email, role, password, passwordConfirm)
+            .then(() => navigate('/login'))
             .catch(errors => {
                 setError(Object.fromEntries(errors.response.data.map(fieldError => [fieldError.field, fieldError.defaultMessage])))
-            }).finally(() => setLoading(false))
+            })
+            .finally(() => setLoading(false))
     }
 
     return (

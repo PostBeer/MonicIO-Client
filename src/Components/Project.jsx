@@ -2,13 +2,58 @@ import {Header} from "./Header";
 import {SideBar} from "./SideBar";
 import {Footer} from "./Footer";
 import {avatarPicture} from "../App";
-import {useContext} from "react";
+import {useContext, useEffect, useState} from "react";
 import {Context} from "../index";
-import {NavLink} from "react-router-dom";
+import {NavLink, useParams} from "react-router-dom";
+import {observer} from "mobx-react-lite";
+import {createTask, loadTasks} from "../http/taskApi";
+import dayjs from "dayjs";
+import {loadProject} from "../http/projectApi";
 
-export const Project = () => {
+export const Project = observer((props) => {
     const {user} = useContext(Context)
+    const {projects} = useContext(Context)
+    const [tasks, setTasks] = useState([]);
+    const [links, setLinks] = useState();
+    const [name, setName] = useState();
+    const [users, setUsers] = useState();
+    const [description, setDescription] = useState();
+    const [completeDate, setCompleteDate] = useState();
+    const {id} = useParams()
 
+    useEffect(() => {
+        loadProject(id).then((response) => {
+            projects.setCurrentProject(response.data)
+            loadTasks(response.data._links.tasks.href).then(response => {
+                setTasks(response.data._embedded.tasks)
+                setLinks(response.data._links)
+            })
+
+        })
+    }, [id]);
+    console.log(JSON.stringify(projects.currentProject.users))
+
+    const chooseStatus = (status) => {
+        switch (status) {
+            case "Назначение исполнителя":
+                return "badge bg-primary"
+            case "Выполняется":
+                return "badge bg-warning"
+            case "Отправлена на проверку":
+                return "badge bg-dark"
+            case "Просрочена":
+                return "badge bg-danger"
+            case "Выполнена":
+                return "badge bg-success"
+        }
+    }
+    const createNewTask = async () => {
+        await createTask(name, description, completeDate, projects.currentProject.id).then((response) => {
+            setTasks(prevState => [...prevState, response.data])
+        }).catch((errors => {
+            console.log(errors)
+        }))
+    }
     return (
         <div>
             <Header/>
@@ -16,12 +61,12 @@ export const Project = () => {
             <main id="main" className="main">
 
                 <div className="pagetitle">
-                    <h1>Проект "Курсач"</h1>
+                    <h1>Проект "{projects.currentProject.title}"</h1>
                     <nav>
                         <ol className="breadcrumb">
                             <li className="breadcrumb-item"><NavLink to="/">Главная</NavLink></li>
                             <li className="breadcrumb-item">Проекты</li>
-                            <li className="breadcrumb-item active">Курсач</li>
+                            <li className="breadcrumb-item active">{projects.currentProject.title}</li>
                         </ol>
                     </nav>
                 </div>
@@ -36,21 +81,13 @@ export const Project = () => {
 
                                 <div className="col-12">
                                     <div className="card">
+                                        <div className="filter">
+                                            <button
+                                                className="btn btn-sm btn-secondary me-3">{projects.currentProject.status}</button>
+                                        </div>
                                         <div className="card-body">
-                                            <h5 className="card-title">Курсач</h5>
-                                            Ut in ea error laudantium quas omnis officia. Sit sed praesentium voluptas.
-                                            Corrupti
-                                            inventore consequatur nisi necessitatibus modi consequuntur soluta id. Enim
-                                            autem est
-                                            esse natus assumenda. Non sunt dignissimos officiis expedita. Consequatur
-                                            sint
-                                            repellendus voluptas.
-                                            Quidem sit est nulla ullam. Suscipit debitis ullam iusto dolorem animi
-                                            dolorem numquam.
-                                            Enim fuga ipsum dolor nulla quia ut.
-                                            Rerum dolor voluptatem et deleniti libero totam numquam nobis distinctio.
-                                            Sit sint aut.
-                                            Consequatur rerum in.(пример описания)
+                                            <h5 className="card-title">{projects.currentProject.title}</h5>
+                                            {projects.currentProject.description}
                                         </div>
                                     </div>
                                 </div>
@@ -64,57 +101,113 @@ export const Project = () => {
                                             <h5 className="card-title">Статус задач</h5>
 
                                             <table className="table table-borderless">
-                                                <thead>
+                                                <thead className="text-center">
                                                 <tr>
                                                     <th scope="col">Задача</th>
-                                                    <th scope="col">Проект</th>
                                                     <th scope="col">Исполнитель</th>
                                                     <th scope="col">Завершить до</th>
                                                     <th scope="col">Статус</th>
+                                                    <th scope="col">Действия</th>
                                                 </tr>
                                                 </thead>
-                                                <tbody>
-                                                <tr>
-                                                    <th scope="row"><a href="#">Реализовать регистрацию</a></th>
-                                                    <td><a href="#" className="text-primary">Курсач</a></td>
-                                                    <td>Милько М.</td>
-                                                    <td>20-04-2023</td>
-                                                    <td><span className="badge bg-warning">Выполняется</span></td>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row"><a href="#">Написать документацию</a></th>
-                                                    <td><a href="#" className="text-primary">Курсач</a></td>
-                                                    <td>Жизневский Н.</td>
-                                                    <td>20-04-2023</td>
-                                                    <td><span className="badge bg-warning">Выполняется</span></td>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row"><a href="#">Сделать отчёт</a></th>
-                                                    <td><a href="#" className="text-primary">Курсач</a></td>
-                                                    <td>-</td>
-                                                    <td>20-04-2023</td>
-                                                    <td><span className="badge bg-primary">Назначение исполнителя</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row"><a href="#">Инициализация сервера</a></th>
-                                                    <td><a href="#" className="text-primary">Курсач</a></td>
-                                                    <td>Глушко Н.С.</td>
-                                                    <td>10-04-2023</td>
-                                                    <td><span className="badge bg-success">Ожидает подтверждения</span>
-                                                    </td>
-                                                </tr>
-                                                <tr className="text-center">
-                                                    <td colSpan="5">
-                                                        <button type="button" className="btn btn-dark rounded-pill"><i
-                                                            className="bi bi-three-dots"></i></button>
-                                                    </td>
-                                                </tr>
-                                                </tbody>
+                                                {tasks.length !== 0 ?
+                                                    <tbody className="text-center">
+                                                    {tasks.map((task, index) => {
+                                                        return <tr>
+
+                                                            <th scope="row"><a href="#">{task.name}</a></th>
+                                                            {task.implementer ?
+                                                                <td>{task.implementer.surname} {task.implementer.name[0]}.</td>
+                                                                :
+                                                                <td>Не выбран</td>
+                                                            }
+                                                            <td>{dayjs(task.completeDate).format('DD MM YYYY HH:mm')}</td>
+                                                            <td><span
+                                                                className={chooseStatus(task.status)}>{task.status}</span>
+                                                            </td>
+                                                            <td className="text-center">
+                                                                {user.user.username === projects.currentProject.creator.username ?
+                                                                    <button type="button"
+                                                                            className="btn btn-sm btn-danger"><i
+                                                                        className="bi bi-trash"></i></button>
+                                                                    :
+                                                                    <button type="button"
+                                                                            className="btn btn-sm btn-success"><i
+                                                                        className="bi bi-check"></i></button>
+                                                                }
+
+                                                            </td>
+                                                        </tr>
+                                                    })}
+                                                    {links.next && <tr className="text-center">
+                                                        <td colSpan="5">
+                                                            <button type="button" className="btn btn-dark rounded-pill">
+                                                                <i
+                                                                    className="bi bi-three-dots"></i></button>
+                                                        </td>
+                                                    </tr>}
+                                                    </tbody>
+
+                                                    :
+                                                    <tbody>
+                                                    <tr className="table-warning text-center">
+                                                        <th colSpan={5} scope="row">Задачи отсутствуют</th>
+                                                    </tr>
+
+                                                    </tbody>
+                                                }
                                             </table>
 
                                         </div>
 
+                                    </div>
+                                </div>
+                                <div className="col-12">
+                                    <div className="card">
+                                        <div className="card-body">
+                                            <h5 className="card-title">Создать новую задачу</h5>
+
+                                            <div>
+                                                <div className="row mb-3">
+                                                    <label htmlFor="inputText"
+                                                           className="col-sm-2 col-form-label">Название</label>
+                                                    <div className="col-sm-10">
+                                                        <input type="text"
+                                                               placeholder="Введите название задачи"
+                                                               onChange={e => setName(e.target.value)}
+                                                               className="form-control"/>
+                                                    </div>
+                                                </div>
+                                                <div className="row mb-3">
+                                                    <label htmlFor="inputPassword"
+                                                           className="col-sm-2 col-form-label">Описание</label>
+                                                    <div className="col-sm-10">
+                                                        <textarea className="form-control"
+                                                                  placeholder="Введите описание задачи"
+                                                                  onChange={e => setDescription(e.target.value)}
+                                                                  style={{height: "100px"}}></textarea>
+                                                    </div>
+                                                </div>
+                                                <div className="row mb-3">
+                                                    <label htmlFor="inputDate"
+                                                           className="col-sm-2 col-form-label">Выполнить до</label>
+                                                    <div className="col-sm-10">
+                                                        <input type="datetime-local" className="form-control"
+                                                               onChange={e => setCompleteDate(e.target.value)}
+                                                               placeholder="Выполнить до"/>
+                                                    </div>
+                                                </div>
+                                                <div className="row mb-3">
+                                                    <div className="col-sm-12 text-center">
+                                                        <button className="btn btn-success"
+                                                                onClick={createNewTask}>Создать задачу
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="col-12">
@@ -134,30 +227,18 @@ export const Project = () => {
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                <tr>
-                                                    <th scope="row">1</th>
-                                                    <td>Глушко Никита</td>
-                                                    <td>Разработчик</td>
-                                                    <td>28</td>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row">2</th>
-                                                    <td>Звягинцев Максим</td>
-                                                    <td>Разработчик</td>
-                                                    <td>35</td>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row">3</th>
-                                                    <td>Милько Максим</td>
-                                                    <td>Разработчик</td>
-                                                    <td>45</td>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row">4</th>
-                                                    <td>Жизневский Никита</td>
-                                                    <td>Разработчик</td>
-                                                    <td>34</td>
-                                                </tr>
+                                                {projects.currentProject?.users?.map((user, index) => {
+                                                    return <tr>
+                                                        <th scope="row">{index + 1}</th>
+                                                        <td>{user.surname} {user.name}</td>
+                                                        <td>{user.username === projects.currentProject.creator.username ?
+                                                            "Руководитель проекта"
+                                                            :
+                                                            "Участник"
+                                                        }</td>
+                                                        <td>0</td>
+                                                    </tr>
+                                                })}
                                                 </tbody>
                                             </table>
 
@@ -243,7 +324,12 @@ export const Project = () => {
                                     <h5 className="card-title">Чат проекта "Курсач"</h5>
 
                                     <div id="chatRoom" className="pt-3 pe-1"
-                                         style={{display: 'block', position: 'relative', height: '300px', overflowY: 'auto'}}></div>
+                                         style={{
+                                             display: 'block',
+                                             position: 'relative',
+                                             height: '300px',
+                                             overflowY: 'auto'
+                                         }}></div>
                                     <div id="chatInputArea"
                                          className="text-muted justify-content-start align-items-center pt-3 mt-2  d-flex"
                                          style={{display: 'block'}}>
@@ -271,4 +357,4 @@ export const Project = () => {
             <Footer/>
         </div>
     );
-};
+});

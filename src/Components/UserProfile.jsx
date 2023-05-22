@@ -155,7 +155,7 @@ const UserProfile = observer(() => {
                                         <img src={avatarPicture(user)} alt="Profile"
                                              className="rounded-circle"/>
                                         <h2>{user.user.surname + ' ' + user.user.name}</h2>
-                                        <h3>{(user.isAdmin) ? "Администратор" : "Пользователь"}</h3>
+                                        <h3>{(user.isPM) ? "Руководитель проектов" : "Разработчик"}</h3>
                                         <div className="social-links mt-2">
                                             <NavLink to={'#'} className="twitter"><i className="bi bi-github"></i></NavLink>
                                             <NavLink to={'#'} className="facebook"><i
