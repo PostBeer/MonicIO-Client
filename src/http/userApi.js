@@ -49,6 +49,10 @@ export const editProfile = async (formData) => {
     })
 }
 
+export const activateUser = async (token) => {
+    return $host.get("http://localhost:8080/activate/" + token);
+}
+
 export {
     login,
     registration,
