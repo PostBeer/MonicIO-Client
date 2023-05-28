@@ -12,7 +12,7 @@ export const SideBar = observer(() => {
 
     const [myProjects, setMyProjects] = useState([]);
     useEffect(() => {
-        loadProjects(process.env.SERVER_URL + `/api/users/${user.user.id}/projects`).then((response) => {
+        loadProjects(process.env.REACT_APP_SERVER_URL + `/api/users/${user.user.id}/projects`).then((response) => {
             setMyProjects(response.data._embedded.projects)
         })
     }, []);

@@ -268,7 +268,7 @@ const UserProfile = observer(() => {
                                                         <div className="alert alert-success alert-dismissible fade show"
                                                              role="alert">
                                                             <i className="bi bi-check-circle me-1"></i>
-                                                            Пароль успешно сменён
+                                                            Пароль успешно изменён
                                                             <button type="button" className="btn-close"
                                                                     data-bs-dismiss="alert" aria-label="Close"></button>
                                                         </div>

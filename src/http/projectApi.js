@@ -5,7 +5,7 @@ export const createProject = async (title, description, creator, status) => {
 
     return axios({
         method: 'POST',
-        url: process.env.SERVER_URL + `/api/projects`,
+        url: process.env.REACT_APP_SERVER_URL + `/api/projects`,
         data: {
             title: title,
             description: description,
@@ -33,7 +33,7 @@ export const loadProjects = async (url) => {
 export const loadProject = async (id) => {
     return axios({
         method: 'GET',
-        url: process.env.SERVER_URL + `/api/projects/${id}`,
+        url: process.env.REACT_APP_SERVER_URL + `/api/projects/${id}`,
         headers: {
             'Authorization': 'Bearer ' + getToken()
         }
@@ -42,7 +42,7 @@ export const loadProject = async (id) => {
 export const deleteProject = async (id) => {
     return axios({
         method: 'DELETE',
-        url: process.env.SERVER_URL + `/api/projects/${id}`,
+        url: process.env.REACT_APP_SERVER_URL + `/api/projects/${id}`,
         headers: {
             'Authorization': 'Bearer ' + getToken()
         }
