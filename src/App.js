@@ -18,6 +18,7 @@ import {loadProjects} from "./http/projectApi";
 dayjs.locale('ru')
 
 export const avatarPicture = (userWithAvatar) => {
+    console.log(userWithAvatar)
     if (userWithAvatar.avatar) {
         return "http://localhost:8080/api/media/" + userWithAvatar.avatar.id
     } else {
@@ -46,7 +47,6 @@ const App = observer(() => {
             })
         },100)
     }, [])
-
 
     if (loading) {
         return (<div className={"d-flex min-vh-100 align-items-center justify-content-center"}><ReactLoading

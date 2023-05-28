@@ -2,9 +2,16 @@ import {Header} from "./Header";
 import {SideBar} from "./SideBar";
 import {NavLink} from "react-router-dom";
 import {Footer} from "./Footer";
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Context} from "../index";
-import {createProject, deleteProject, loadProjects} from "../http/projectApi";
+import {
+    cancelProjectRequest,
+    createProject,
+    deleteProject,
+    leaveFromProject,
+    loadProjects,
+    sendProjectRequest
+} from "../http/projectApi";
 import {observer} from "mobx-react-lite";
 import {Button, Form, Spinner} from "react-bootstrap";
 
@@ -16,6 +23,12 @@ export const ProjectList = observer(() => {
         const {projects} = useContext(Context)
         const [errors, setErrors] = useState({})
         const [loading, setLoading] = useState(false);
+        useEffect(() => {
+            loadProjects(`http://localhost:8080/api/projects`).then((response) => {
+                projects.setProjects(response.data._embedded.projects)
+                projects.setLinks(response.data._links)
+            })
+        }, []);
         const loadMoreProjects = async (url) => {
             await loadProjects(url).then(
                 (response) => {
@@ -53,6 +66,53 @@ export const ProjectList = observer(() => {
                 projects.setProjects(projects.projects.filter((project) => project.id !== id))
             )
         }
+        const sendRequest = async (id) => {
+            await sendProjectRequest(id).then((response) => {
+                    projects.setProjects(projects.projects.filter((project) => project.id !== id))
+                    projects.projects.push(response.data)
+                    console.log(projects.projects)
+                }
+            )
+        }
+        const cancelRequest = async (id) => {
+            await cancelProjectRequest(id).then((response) => {
+                    projects.setProjects(projects.projects.filter((project) => project.id !== id))
+                    projects.projects.push(response.data)
+                    console.log(projects.projects)
+                }
+            )
+        }
+        const leaveProject = async (id) => {
+            await leaveFromProject(id).then((response) => {
+                    projects.setProjects(projects.projects.filter((project) => project.id !== id))
+                    projects.projects.push(response.data)
+                    console.log(projects.projects)
+                }
+            )
+        }
+
+
+        const showAction = (project) => {
+            if (user.user.username === project.creator.username) {
+                return <button className="btn btn-sm btn-danger"
+                               onClick={() => removeProject(project.id)}> Удалить
+                    проект</button>
+            } else {
+                if (project.users.some((item) => item.username === user.user.username))
+                    return <button className="btn btn-sm btn-danger"
+                                   onClick={() => leaveProject(project.id)}> Покинуть проект</button>
+                else {
+                    if (project.requests.some((item) => item.username === user.user.username)) {
+                        return <button className="btn btn-sm btn-danger"
+                                       onClick={() => cancelRequest(project.id)}>Отменить запрос</button>
+                    } else {
+                        return <button className="btn btn-sm btn-success"
+                                       onClick={() => sendRequest(project.id)}> Подать заявку на вступление</button>
+                    }
+                }
+            }
+        }
+
         const badgeStatus = (status) => {
             switch (status) {
                 case "В разработке":
@@ -124,12 +184,7 @@ export const ProjectList = observer(() => {
                                                                 <td><span
                                                                     className={badgeStatus(project.status)}>{project.status}</span>
                                                                 </td>
-                                                                <td>{user.user.username === project.creator.username ?
-                                                                    <button className="btn btn-sm btn-danger"
-                                                                            onClick={() => removeProject(project.id)}> Удалить
-                                                                        проект</button> :
-                                                                    <button className="btn btn-sm btn-success"> Отправить
-                                                                        запрос на вступление</button>} </td>
+                                                                <td>{showAction(project)} </td>
                                                             </tr>
                                                         })}
                                                         {projects.links.next && <tr className="text-center">

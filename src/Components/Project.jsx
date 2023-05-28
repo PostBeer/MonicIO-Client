@@ -8,7 +8,7 @@ import {NavLink, useParams} from "react-router-dom";
 import {observer} from "mobx-react-lite";
 import {createTask, loadTasks} from "../http/taskApi";
 import dayjs from "dayjs";
-import {loadProject} from "../http/projectApi";
+import {completeProjectRequest, loadProject} from "../http/projectApi";
 
 export const Project = observer((props) => {
     const {user} = useContext(Context)
@@ -32,6 +32,12 @@ export const Project = observer((props) => {
         })
     }, [id]);
     console.log(JSON.stringify(projects.currentProject.users))
+
+    const completeRequest = async (username, success) => {
+        await completeProjectRequest(id, username, success).then((response) => {
+            projects.setCurrentProject(response.data)
+        })
+    }
 
     const chooseStatus = (status) => {
         switch (status) {
@@ -162,7 +168,7 @@ export const Project = observer((props) => {
 
                                     </div>
                                 </div>
-                                <div className="col-12">
+                                {user.isPM && <div className="col-12">
                                     <div className="card">
                                         <div className="card-body">
                                             <h5 className="card-title">Создать новую задачу</h5>
@@ -209,7 +215,8 @@ export const Project = observer((props) => {
 
                                         </div>
                                     </div>
-                                </div>
+                                </div>}
+
                                 <div className="col-12">
                                     <div className="card">
                                         <div className="card-body">
@@ -217,26 +224,26 @@ export const Project = observer((props) => {
                                                 проекта</h5>
 
 
-                                            <table className="table table-dark">
+                                            <table className="table table-dark text-center">
                                                 <thead>
                                                 <tr>
                                                     <th scope="col">#</th>
+                                                    <th scope="col">Никнейм</th>
                                                     <th scope="col">Имя</th>
                                                     <th scope="col">Должность</th>
-                                                    <th scope="col">Количество задач</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
                                                 {projects.currentProject?.users?.map((user, index) => {
                                                     return <tr>
                                                         <th scope="row">{index + 1}</th>
+                                                        <td> {user.username}</td>
                                                         <td>{user.surname} {user.name}</td>
                                                         <td>{user.username === projects.currentProject.creator.username ?
                                                             "Руководитель проекта"
                                                             :
                                                             "Участник"
                                                         }</td>
-                                                        <td>0</td>
                                                     </tr>
                                                 })}
                                                 </tbody>
@@ -246,6 +253,49 @@ export const Project = observer((props) => {
                                         </div>
                                     </div>
                                 </div>
+                                {user.isPM && <div className="col-12">
+                                    <div className="card">
+                                        <div className="card-body">
+                                            <h5 className="card-title">Заявки на вступление в проект</h5>
+
+
+                                            <table className="table table-dark text-center">
+                                                <thead>
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Никнейм</th>
+                                                    <th scope="col">Имя</th>
+                                                    <th scope="col">Действия</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {projects.currentProject?.requests?.map((user, index) => {
+                                                    return <tr>
+                                                        <th scope="row">{index + 1}</th>
+                                                        <td> {user.username}</td>
+                                                        <td>{user.surname} {user.name}</td>
+                                                        <td>
+                                                            <button type="button"
+                                                                    className="btn btn-sm btn-danger me-2"><i
+                                                                className="bi bi-x-lg"
+                                                                onClick={() => completeRequest(user.username, false)}></i>
+                                                            </button>
+                                                            <button type="button"
+                                                                    className="btn btn-sm btn-success ms-2"><i
+                                                                className="bi bi-check-lg"
+                                                                onClick={() => completeRequest(user.username, true)}></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                })}
+                                                </tbody>
+                                            </table>
+
+
+                                        </div>
+                                    </div>
+                                </div>}
+
 
                             </div>
                         </div>

@@ -8,6 +8,17 @@ export default class UserStore {
         makeAutoObservable(this);
     }
 
+    get isAuth() {
+        return this._isAuth;
+    }
+
+    get user() {
+        return this._user;
+    }
+
+    get isPM() {
+        return this._isPM;
+    }
 
     setIsAuth(bool) {
         this._isAuth = bool;
@@ -19,18 +30,5 @@ export default class UserStore {
 
     setIsPM(bool) {
         this._isPM = bool;
-    }
-
-
-    get isAuth() {
-        return this._isAuth;
-    }
-
-    get user() {
-        return this._user;
-    }
-
-    get isPM() {
-        return this._isPM;
     }
 }
