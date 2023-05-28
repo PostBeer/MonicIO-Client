@@ -1,16 +1,16 @@
 import axios from "axios";
 
 
-const $host  = axios.create({
+const $host = axios.create({
     baseURL: process.env.SERVER_URL
 });
 
-const $authHost  = axios.create({
+const $authHost = axios.create({
     baseURL: process.env.SERVER_URL
 });
 
 
-const authInterceptor = config =>{
+const authInterceptor = config => {
     config.headers.authorization = `Bearer ${localStorage.getItem('token')}`
     return config;
 }

@@ -52,7 +52,7 @@ export const deleteProject = async (id) => {
 export const sendProjectRequest = async (id) => {
     return axios({
         method: 'POST',
-        url: `http://localhost:8080/api/projects/${id}/request`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/projects/${id}/request`,
         headers: {
             'Authorization': 'Bearer ' + getToken()
         }
@@ -62,7 +62,7 @@ export const sendProjectRequest = async (id) => {
 export const cancelProjectRequest = async (id) => {
     return axios({
         method: 'POST',
-        url: `http://localhost:8080/api/projects/${id}/request/cancel`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/projects/${id}/request/cancel`,
         headers: {
             'Authorization': 'Bearer ' + getToken()
         }
@@ -72,7 +72,7 @@ export const cancelProjectRequest = async (id) => {
 export const completeProjectRequest = async (id, username, success) => {
     return axios({
         method: 'POST',
-        url: `http://localhost:8080/api/projects/${id}/request/${username}`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/projects/${id}/request/${username}`,
         params: {success},
         headers: {
             'Authorization': 'Bearer ' + getToken()
@@ -83,7 +83,7 @@ export const completeProjectRequest = async (id, username, success) => {
 export const leaveFromProject = async (id) => {
     return axios({
         method: 'POST',
-        url: `http://localhost:8080/api/projects/${id}/leave`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/projects/${id}/leave`,
         headers: {
             'Authorization': 'Bearer ' + getToken()
         }

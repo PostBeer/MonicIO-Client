@@ -32,7 +32,7 @@ const App = observer(() => {
     const {user} = useContext(Context);
     const {projects} = useContext(Context)
     useEffect(() => {
-        setTimeout(()=>{
+        setTimeout(() => {
             setLoading(true)
             check().then(data => {
                 user.setUser(data.data)
@@ -45,7 +45,7 @@ const App = observer(() => {
                 projects.setProjects(response.data._embedded.projects)
                 projects.setLinks(response.data._links)
             })
-        },100)
+        }, 100)
     }, [])
 
     if (loading) {

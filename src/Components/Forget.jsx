@@ -4,7 +4,7 @@ import logoM from "../assets/img/logo.png";
 import {checkPasswordToken, executePasswordToken} from "../http/userApi";
 import {NavLink, useNavigate, useParams} from "react-router-dom";
 import ReactLoading from "react-loading";
-import {Button, Form, InputGroup, Nav, Row, Spinner} from "react-bootstrap";
+import {Button, Form, InputGroup, Spinner} from "react-bootstrap";
 
 const Forget = () => {
 

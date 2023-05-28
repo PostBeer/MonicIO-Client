@@ -13,7 +13,7 @@ export const Contact = () => {
     const [message, setMessage] = useState();
     const [error, setError] = useState();
     const [alert, setAlert] = useState(false);
-    const callbackFunction = async () =>{
+    const callbackFunction = async () => {
         await sendCallback(name, email, theme, message).then(() => {
             setName('');
             setEmail('');
@@ -36,7 +36,7 @@ export const Contact = () => {
                     <h1>Контактная информация</h1>
                     <nav>
                         <ol className="breadcrumb">
-                            <li className="breadcrumb-item"><NavLink href="/">Главная</NavLink></li>
+                            <li className="breadcrumb-item"><NavLink to="/">Главная</NavLink></li>
                             <li className="breadcrumb-item">О нас</li>
                             <li className="breadcrumb-item active">Контактная информация</li>
                         </ol>
@@ -101,7 +101,9 @@ export const Contact = () => {
                                                    placeholder="Ваше имя"
                                                    className={error?.name ? "form-control is-invalid" : "form-control"}
                                                    value={name}
-                                                   onChange={(e) => {setName(e.target.value)}}
+                                                   onChange={(e) => {
+                                                       setName(e.target.value)
+                                                   }}
                                                    required/>
                                             <div className="invalid-feedback">{error?.name}</div>
                                         </div>
@@ -111,7 +113,9 @@ export const Contact = () => {
                                             <input type="email" name="email"
                                                    className={error?.email ? "form-control is-invalid" : "form-control"}
                                                    value={email}
-                                                   onChange={(e) => {setEmail(e.target.value)}}
+                                                   onChange={(e) => {
+                                                       setEmail(e.target.value)
+                                                   }}
                                                    placeholder="Ваш Email" required/>
                                             <div className="invalid-feedback">{error?.email}</div>
                                         </div>
@@ -122,7 +126,9 @@ export const Contact = () => {
                                                    placeholder="Тема"
                                                    className={error?.theme ? "form-control is-invalid" : "form-control"}
                                                    value={theme}
-                                                   onChange={(e) => {setTheme(e.target.value)}}
+                                                   onChange={(e) => {
+                                                       setTheme(e.target.value)
+                                                   }}
                                                    required/>
                                             <div className="invalid-feedback">{error?.theme}</div>
                                         </div>
@@ -133,7 +139,9 @@ export const Contact = () => {
                                                   placeholder="Сообщение"
                                                   className={error?.message ? "form-control is-invalid" : "form-control"}
                                                   value={message}
-                                                  onChange={(e) => {setMessage(e.target.value)}}
+                                                  onChange={(e) => {
+                                                      setMessage(e.target.value)
+                                                  }}
                                                   required></textarea>
                                             <div className="invalid-feedback">{error?.message}</div>
                                         </div>
@@ -144,7 +152,9 @@ export const Contact = () => {
                                             <div className="error-message"></div>
                                             <div className="sent-message">Your message has been sent. Thank you!</div>
 
-                                            <button onClick={callbackFunction} className='btn btn-primary'>Отправить сообщение</button>
+                                            <button onClick={callbackFunction} className='btn btn-primary'>Отправить
+                                                сообщение
+                                            </button>
                                         </div>
 
                                     </div>

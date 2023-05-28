@@ -24,7 +24,7 @@ export const ProjectList = observer(() => {
         const [errors, setErrors] = useState({})
         const [loading, setLoading] = useState(false);
         useEffect(() => {
-            loadProjects(`http://localhost:8080/api/projects`).then((response) => {
+            loadProjects(`${process.env.REACT_APP_SERVER_URL}/api/projects`).then((response) => {
                 projects.setProjects(response.data._embedded.projects)
                 projects.setLinks(response.data._links)
             })

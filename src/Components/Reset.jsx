@@ -3,7 +3,6 @@ import {Button, Form, InputGroup, Spinner} from "react-bootstrap";
 import {useNavigate} from "react-router-dom";
 import {getPasswordToken} from "../http/userApi";
 import logo from "../assets/img/logo.png";
-import ReactLoading from "react-loading";
 
 const Reset = () => {
 
