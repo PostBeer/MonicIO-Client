@@ -3,8 +3,8 @@ import {makeAutoObservable} from "mobx";
 export default class ProjectsStore {
     constructor() {
         this._projects = [];
-        this._links={};
-        this._currentProject={};
+        this._links = {};
+        this._currentProject = {};
         makeAutoObservable(this);
     }
 
@@ -13,20 +13,20 @@ export default class ProjectsStore {
         return this._currentProject;
     }
 
-    setCurrentProject(value) {
-        this._currentProject = value;
-    }
-
     get links() {
         return this._links;
     }
 
-    setLinks(value) {
-        this._links = value;
-    }
-
     get projects() {
         return this._projects;
+    }
+
+    setCurrentProject(value) {
+        this._currentProject = value;
+    }
+
+    setLinks(value) {
+        this._links = value;
     }
 
     setProjects(value) {

@@ -18,7 +18,7 @@ const Login = observer(() => {
         setLoading(true);
         setError();
         await login(username, password).then(response => {
-            console.log(response)
+                console.log(response)
                 user.setUser(response);
                 user.setIsAuth(true);
                 navigate('/');
@@ -26,10 +26,10 @@ const Login = observer(() => {
         ).catch(errors => {
             if (errors.response.data) {
                 setError(Object.fromEntries(errors.response.data.map(fieldError => [fieldError.field, fieldError.defaultMessage])))
-            }else {
-                setError({password:'Неверное имя пользователя или пароль'})
+            } else {
+                setError({password: 'Неверное имя пользователя или пароль'})
             }
-        }).finally(()=>setLoading(false))
+        }).finally(() => setLoading(false))
     }
     return (
 
@@ -102,7 +102,7 @@ const Login = observer(() => {
 
                                             <Form.Group className="col-12">
                                                 {!loading ?
-                                                    <Button variant="primary"  className="w-100"
+                                                    <Button variant="primary" className="w-100"
                                                             onClick={signIn}>Войти< /Button>
                                                     : <Button variant="primary" className="w-100" disabled>
                                                         <Spinner

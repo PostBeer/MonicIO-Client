@@ -17,16 +17,11 @@ const UserProfile = observer(() => {
         const [name, setName] = useState(user.user.name);
         const [surname, setSurname] = useState(user.user.surname);
         const [email, setEmail] = useState(user.user.email);
-        const [usernameError, setUsernameError] = useState('');
-        const [nameError, setNameError] = useState('');
-        const [surnameError, setSurnameError] = useState('');
-        const [emailError, setEmailError] = useState('');
+
+        const [errors, setErrors] = useState();
         const [oldPassword, setOldPassword] = useState('');
         const [newPassword, setNewPassword] = useState('');
         const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
-        const [oldPasswordError, setOldPasswordError] = useState('');
-        const [newPasswordError, setNewPasswordError] = useState('');
-        const [newPasswordConfirmError, setNewPasswordConfirmError] = useState('');
         const [avatar, setAvatar] = useState();
         const [formLoading, setFormLoading] = useState(false);
         const [changePasswordComplete, setChangePasswordComplete] = useState(false);
@@ -34,32 +29,12 @@ const UserProfile = observer(() => {
         const changePassword = async () => {
             setFormLoading(true)
             setChangePasswordComplete(false)
-            setOldPasswordError('')
-            setNewPasswordError('')
-            setNewPasswordConfirmError('')
+            setErrors()
             await editPassword(oldPassword, newPassword, newPasswordConfirm).then(() => {
-                setOldPasswordError('')
-                setNewPasswordError('')
-                setNewPasswordConfirmError('')
                 setChangePasswordComplete(true)
             })
-                .catch(err => {
-                    err.response.data.forEach(fieldError => {
-                        switch (fieldError.field) {
-                            case 'password': {
-                                setOldPasswordError(fieldError.defaultMessage)
-                                break;
-                            }
-                            case 'newPassword': {
-                                setNewPasswordError(fieldError.defaultMessage)
-                                break;
-                            }
-                            case 'newPasswordConfirm': {
-                                setNewPasswordConfirmError(fieldError.defaultMessage)
-                                break;
-                            }
-                        }
-                    })
+                .catch(errors => {
+                    setErrors(Object.fromEntries(errors.response.data.map(fieldError => [fieldError.field, fieldError.defaultMessage])))
                 })
                 .finally(() => setFormLoading(false))
 
@@ -75,48 +50,21 @@ const UserProfile = observer(() => {
             }
             if (avatar) formData.append("file", avatar)
             formData.append("user", JSON.stringify(userInfo))
-            setUsernameError('')
-            setNameError('')
-            setSurnameError('')
-            setEmailError('')
+            setErrors()
             setFormLoading(true)
             await editProfile(formData)
                 .then(response => {
                     if (!response.ok) {
                         response.json().then(
-                            err => {
-                                err.forEach(fieldError => {
-                                    switch (fieldError.field) {
-                                        case 'username': {
-                                            setUsernameError(fieldError.defaultMessage)
-                                            break;
-                                        }
-                                        case 'name': {
-                                            setNameError(fieldError.defaultMessage)
-                                            break;
-                                        }
-                                        case 'surname': {
-                                            setSurnameError(fieldError.defaultMessage)
-                                            break;
-                                        }
-                                        case 'email': {
-                                            setEmailError(fieldError.defaultMessage)
-                                            break;
-                                        }
-                                    }
-                                })
+                            errors => {
+                                setErrors(Object.fromEntries(errors.response.data.map(fieldError => [fieldError.field, fieldError.defaultMessage])))
                             }
                         )
                     } else {
-                        setUsernameError('')
-                        setNameError('')
-                        setSurnameError('')
-                        setEmailError('')
                         response.json().then(async (value) => {
                             user.setUser(value)
                             return value
                         })
-
                     }
 
                 })
@@ -152,7 +100,7 @@ const UserProfile = observer(() => {
                                 <div className="card">
                                     <div className="card-body profile-card pt-4 d-flex flex-column align-items-center">
 
-                                        <img src={avatarPicture(user)} alt="Profile"
+                                        <img src={avatarPicture(user.user)} alt="Profile"
                                              className="rounded-circle"/>
                                         <h2>{user.user.surname + ' ' + user.user.name}</h2>
                                         <h3>{(user.isPM) ? "Руководитель проектов" : "Разработчик"}</h3>
@@ -233,7 +181,7 @@ const UserProfile = observer(() => {
                                                                className="col-md-4 col-lg-3 col-form-label">Фото
                                                             профиля</label>
                                                         <div className="col-md-8 col-lg-9">
-                                                            <img src={avatarPicture(user)}
+                                                            <img src={avatarPicture(user.user)}
                                                                  alt="Profile"
                                                                  id="profileImage"/>
                                                             <div className="row">
@@ -255,10 +203,10 @@ const UserProfile = observer(() => {
                                                             пользователя</label>
                                                         <div className="col-md-8 col-lg-9">
                                                             <input name="fullName" type="text"
-                                                                   className={usernameError ? "form-control is-invalid" : "form-control"}
+                                                                   className={errors?.username ? "form-control is-invalid" : "form-control"}
                                                                    id="name" value={username}
                                                                    onChange={e => setUsername(e.target.value)}/>
-                                                            <div className="invalid-feedback">{usernameError}</div>
+                                                            <div className="invalid-feedback">{errors?.username}</div>
                                                         </div>
                                                     </div>
 
@@ -267,10 +215,10 @@ const UserProfile = observer(() => {
                                                                className="col-md-4 col-lg-3 col-form-label">Имя</label>
                                                         <div className="col-md-8 col-lg-9">
                                                             <input name="fullName" type="text"
-                                                                   className={nameError ? "form-control is-invalid" : "form-control"}
+                                                                   className={errors?.name ? "form-control is-invalid" : "form-control"}
                                                                    id="name" value={name}
                                                                    onChange={e => setName(e.target.value)}/>
-                                                            <div className="invalid-feedback">{nameError}</div>
+                                                            <div className="invalid-feedback">{errors?.name}</div>
                                                         </div>
                                                     </div>
                                                     <div className="row mb-3">
@@ -278,10 +226,10 @@ const UserProfile = observer(() => {
                                                                className="col-md-4 col-lg-3 col-form-label">Фамилия</label>
                                                         <div className="col-md-8 col-lg-9">
                                                             <input name="fullName" type="text"
-                                                                   className={surnameError ? "form-control is-invalid" : "form-control"}
+                                                                   className={errors?.surname ? "form-control is-invalid" : "form-control"}
                                                                    id="surname" value={surname}
                                                                    onChange={e => setSurname(e.target.value)}/>
-                                                            <div className="invalid-feedback">{surnameError}</div>
+                                                            <div className="invalid-feedback">{errors?.surname}</div>
                                                         </div>
                                                     </div>
 
@@ -290,10 +238,10 @@ const UserProfile = observer(() => {
                                                                className="col-md-4 col-lg-3 col-form-label">Почта</label>
                                                         <div className="col-md-8 col-lg-9">
                                                             <input name="email" type="email"
-                                                                   className={emailError ? "form-control is-invalid" : "form-control"}
+                                                                   className={errors?.email ? "form-control is-invalid" : "form-control"}
                                                                    id="Email" value={email}
                                                                    onChange={e => setEmail(e.target.value)}/>
-                                                            <div className="invalid-feedback">{emailError}</div>
+                                                            <div className="invalid-feedback">{errors?.email}</div>
                                                         </div>
                                                     </div>
                                                     <div className="text-center">
@@ -332,10 +280,10 @@ const UserProfile = observer(() => {
                                                             пароль</label>
                                                         <div className="col-md-8 col-lg-9">
                                                             <input name="password" type="password"
-                                                                   className={oldPasswordError ? "form-control is-invalid" : "form-control"}
+                                                                   className={errors?.password ? "form-control is-invalid" : "form-control"}
                                                                    id="currentPassword"
                                                                    onChange={e => setOldPassword(e.target.value)}/>
-                                                            <div className="invalid-feedback">{oldPasswordError}</div>
+                                                            <div className="invalid-feedback">{errors?.password}</div>
                                                         </div>
                                                     </div>
 
@@ -345,10 +293,10 @@ const UserProfile = observer(() => {
                                                             пароль</label>
                                                         <div className="col-md-8 col-lg-9">
                                                             <input name="newpassword" type="password"
-                                                                   className={newPasswordError ? "form-control is-invalid" : "form-control"}
+                                                                   className={errors?.newPassword ? "form-control is-invalid" : "form-control"}
                                                                    id="newPassword"
                                                                    onChange={e => setNewPassword(e.target.value)}/>
-                                                            <div className="invalid-feedback">{newPasswordError}</div>
+                                                            <div className="invalid-feedback">{errors?.newPassword}</div>
                                                         </div>
                                                     </div>
 
@@ -358,11 +306,11 @@ const UserProfile = observer(() => {
                                                             пароля</label>
                                                         <div className="col-md-8 col-lg-9">
                                                             <input name="renewpassword" type="password"
-                                                                   className={newPasswordConfirmError ? "form-control is-invalid" : "form-control"}
+                                                                   className={errors?.newPasswordConfirm ? "form-control is-invalid" : "form-control"}
                                                                    id="renewPassword"
                                                                    onChange={e => setNewPasswordConfirm(e.target.value)}/>
                                                             <div
-                                                                className="invalid-feedback">{newPasswordConfirmError}</div>
+                                                                className="invalid-feedback">{errors?.newPasswordConfirm}</div>
                                                         </div>
                                                     </div>
 

@@ -27,7 +27,7 @@ const check = async () => {
 export const editPassword = async (oldPassword, newPassword, newPasswordConfirm) => {
 
     return axios({
-        method: 'POST',
+        method: 'PUT',
         url: process.env.SERVER_URL + `/api/profile/changePassword`,
         data: {
             password: oldPassword,

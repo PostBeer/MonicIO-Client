@@ -1,18 +1,19 @@
 import {NavLink, useLocation} from "react-router-dom";
-import {useContext, useEffect} from "react";
+import {useContext, useEffect, useState} from "react";
 import {Context} from "../index";
 import {loadProjects} from "../http/projectApi";
 import {observer} from "mobx-react-lite";
 
-export const SideBar =observer (() => {
+export const SideBar = observer(() => {
     const location = useLocation()
     const {user} = useContext(Context)
     const {projects} = useContext(Context)
 
+
+    const [myProjects, setMyProjects] = useState([]);
     useEffect(() => {
-        loadProjects(process.env.SERVER_URL + `/api/projects`).then((response) => {
-            projects.setProjects(response.data._embedded.projects)
-            projects.setLinks(response.data._links)
+        loadProjects(process.env.SERVER_URL + `/api/users/${user.user.id}/projects`).then((response) => {
+            setMyProjects(response.data._embedded.projects)
         })
     }, []);
     return (
@@ -40,9 +41,9 @@ export const SideBar =observer (() => {
                         <i className="bi bi-menu-button-wide"></i><span>Мои проекты</span><i
                         className="bi bi-chevron-down ms-auto"></i>
                     </NavLink>
-                    {projects.projects.length !== 0 ?
+                    {myProjects.length !== 0 ?
                         <ul id="components-nav" className="nav-content collapse " data-bs-parent="#sidebar-nav">
-                            {projects.projects.map((project) => {
+                            {myProjects.map((project) => {
                                 return <li>
                                     <NavLink to={`/projects/${project.id}`}>
                                         <i className="bi bi-circle"></i><span>{project.title}</span>

@@ -6,7 +6,6 @@ import {Context} from "../index";
 import {avatarPicture} from "../App";
 
 
-
 export const Header = () => {
     const {user} = useContext(Context)
     const logoutUser = () => {
