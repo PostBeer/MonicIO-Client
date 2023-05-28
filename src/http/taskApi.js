@@ -5,7 +5,7 @@ export const createTask = async (name,description,completeDate,id) => {
 
     return axios({
         method: 'POST',
-        url: `http://localhost:8080/api/projects/${id}/tasks/create`,
+        url: process.env.SERVER_URL + `/api/projects/${id}/tasks/create`,
         data: {
             name:name,
             description:description,

@@ -1,4 +1,4 @@
-import {$host} from ".";
+import {$authHost, $host} from ".";
 import axios from "axios";
 
 const login = async (username, password) => {
@@ -18,7 +18,7 @@ export const getToken = () => {
 const check = async () => {
     return axios({
         method: 'GET',
-        url: `http://localhost:8080/api/auth/info`,
+        url: process.env.SERVER_URL + `/api/auth/info`,
         headers: {
             'Authorization': 'Bearer ' + getToken()
         }
@@ -28,7 +28,7 @@ export const editPassword = async (oldPassword, newPassword, newPasswordConfirm)
 
     return axios({
         method: 'POST',
-        url: `http://localhost:8080/api/profile/changePassword`,
+        url: process.env.SERVER_URL + `/api/profile/changePassword`,
         data: {
             password: oldPassword,
             newPassword: newPassword,
@@ -42,7 +42,7 @@ export const editPassword = async (oldPassword, newPassword, newPasswordConfirm)
 
 export const editProfile = async (formData) => {
 
-    return fetch("http://localhost:8080/api/profile/changeInfo", {
+    return fetch(process.env.SERVER_URL + "/api/profile/changeInfo", {
         method: "PUT",
         body: formData,
         headers: {'Authorization': 'Bearer ' + getToken()}
@@ -50,7 +50,23 @@ export const editProfile = async (formData) => {
 }
 
 export const activateUser = async (token) => {
-    return $host.get("http://localhost:8080/activate/" + token);
+    return $host.get(process.env.SERVER_URL + "/activate/" + token);
+}
+
+export const checkPasswordToken = async (token) => {
+    return $host.get(process.env.SERVER_URL + "/forget/" + token);
+}
+
+export const executePasswordToken = async (password, passwordConfirm, token) => {
+    return $host.post(process.env.SERVER_URL + "/forget/" + token, {password, passwordConfirm});
+}
+
+export const getPasswordToken = async (email) => {
+    return $host.post(process.env.SERVER_URL + "/forget/email", {email});
+}
+
+export const sendCallback = async (name, email, theme, message) => {
+    return $authHost.post(process.env.SERVER_URL + "/callback", {name, email, theme, message});
 }
 
 export {

@@ -14,7 +14,7 @@ const Activate = () => {
         setTimeout(() => {
             setLoading(true);
             activateUser(token).then((response) => {
-                if (response.status === 302) {
+                if (response.status === 200) {
                     setSuccess(true);
                 } else {
                     setSuccess(false);

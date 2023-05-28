@@ -2,11 +2,11 @@ import axios from "axios";
 
 
 const $host  = axios.create({
-    baseURL: "http://localhost:8080/"
+    baseURL: process.env.SERVER_URL
 });
 
 const $authHost  = axios.create({
-    baseURL: "http://localhost:8080/"
+    baseURL: process.env.SERVER_URL
 });
 
 

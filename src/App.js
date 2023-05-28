@@ -19,7 +19,7 @@ dayjs.locale('ru')
 
 export const avatarPicture = (userWithAvatar) => {
     if (userWithAvatar.avatar) {
-        return "http://localhost:8080/api/media/" + userWithAvatar.avatar.id
+        return process.env.SERVER_URL + "/api/media/" + userWithAvatar.avatar.id
     } else {
         return avatar
     }
@@ -40,7 +40,7 @@ const App = observer(() => {
                 console.log(getToken())
 
             }).finally(() => setLoading(false))
-            loadProjects(`http://localhost:8080/api/projects`).then((response) => {
+            loadProjects(process.env.SERVER_URL + `/api/projects`).then((response) => {
                 projects.setProjects(response.data._embedded.projects)
                 projects.setLinks(response.data._links)
             })

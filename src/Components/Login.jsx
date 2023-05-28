@@ -15,8 +15,8 @@ const Login = observer(() => {
     let navigate = useNavigate();
 
     const signIn = async () => {
-        setLoading(true)
-        setError()
+        setLoading(true);
+        setError();
         await login(username, password).then(response => {
             console.log(response)
                 user.setUser(response);
@@ -118,6 +118,10 @@ const Login = observer(() => {
                                             <Form.Group className="col-12">
                                                 <p className="small mb-0">У вас нет учетной записи? <NavLink
                                                     to="/register">Создайте аккаунт</NavLink></p>
+                                            </Form.Group>
+                                            <Form.Group className="col-12">
+                                                <p className="small mb-0">Забыли пароль? <NavLink
+                                                    to='/reset'>Сбросить пароль</NavLink></p>
                                             </Form.Group>
                                         </Form>
                                     </div>

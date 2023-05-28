@@ -10,7 +10,7 @@ export const SideBar =observer (() => {
     const {projects} = useContext(Context)
 
     useEffect(() => {
-        loadProjects(`http://localhost:8080/api/projects`).then((response) => {
+        loadProjects(process.env.SERVER_URL + `/api/projects`).then((response) => {
             projects.setProjects(response.data._embedded.projects)
             projects.setLinks(response.data._links)
         })

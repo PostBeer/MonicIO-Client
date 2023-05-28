@@ -8,6 +8,8 @@ import {Contact} from "./Components/Contact";
 import {Project} from "./Components/Project";
 import {ProjectList} from "./Components/ProjectList";
 import Activate from "./Components/Activate";
+import Forget from "./Components/Forget";
+import Reset from "./Components/Reset";
 
 
 export const authRoutes = [
@@ -61,5 +63,13 @@ export const publicRoutes = [
     {
         path: '/activate/:token',
         Component: Activate
+    },
+    {
+        path: '/forget/:token',
+        Component: Forget
+    },
+    {
+        path: '/reset',
+        Component: Reset
     }
 ]
