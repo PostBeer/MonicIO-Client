@@ -7,6 +7,7 @@ import {FAQ} from "./Components/FAQ";
 import {Contact} from "./Components/Contact";
 import {Project} from "./Components/Project";
 import {ProjectList} from "./Components/ProjectList";
+import Activate from "./Components/Activate";
 
 
 export const authRoutes = [
@@ -42,7 +43,6 @@ export const authRoutes = [
         path: '/projects/:id',
         Component: Project
     }
-
 ]
 
 export const publicRoutes = [
@@ -57,5 +57,9 @@ export const publicRoutes = [
     {
         path: '/register',
         Component: Register
+    },
+    {
+        path: '/activate/:token',
+        Component: Activate
     }
 ]
