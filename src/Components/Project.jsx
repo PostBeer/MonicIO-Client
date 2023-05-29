@@ -8,7 +8,7 @@ import {NavLink, useParams} from "react-router-dom";
 import {observer} from "mobx-react-lite";
 import {createTask, loadTasks} from "../http/taskApi";
 import dayjs from "dayjs";
-import {completeProjectRequest, loadProject, loadTasksLog} from "../http/projectApi";
+import {completeProjectRequest, loadProject, loadTasksLogForProject} from "../http/projectApi";
 
 require('dayjs/locale/es')
 var relativeTime = require('dayjs/plugin/relativeTime')
@@ -21,7 +21,6 @@ export const Project = observer((props) => {
     const [logs, setLogs] = useState([]);
     const [links, setLinks] = useState();
     const [name, setName] = useState();
-    const [users, setUsers] = useState();
     const [description, setDescription] = useState();
     const [completeDate, setCompleteDate] = useState();
     const {id} = useParams()
@@ -33,12 +32,12 @@ export const Project = observer((props) => {
                 setTasks(response.data._embedded.tasks)
                 setLinks(response.data._links)
             })
-
-            loadTasksLog(id).then((response) => {
-                setLogs(response.data.content);
-            })
         })
-    }, [id]);
+
+        loadTasksLogForProject(id).then((response) => {
+            setLogs(response.data.content);
+        })
+    });
     console.log(JSON.stringify(projects.currentProject.users))
 
     const completeRequest = async (username, success) => {
@@ -96,8 +95,15 @@ export const Project = observer((props) => {
                                 <div className="col-12">
                                     <div className="card">
                                         <div className="filter">
-                                            <button
-                                                className="btn btn-sm btn-secondary me-3">{projects.currentProject.status}</button>
+                                            {projects.currentProject.status === "Завершён" ?
+                                                <button
+                                                    className="btn btn-sm me-3 btn-success"
+                                                    style={{color: "white"}}>{projects.currentProject.status}</button>
+                                                :
+                                                <button
+                                                    className="btn btn-sm me-3 btn-warning"
+                                                    style={{color: "white"}}>{projects.currentProject.status}</button>
+                                            }
                                         </div>
                                         <div className="card-body">
                                             <h5 className="card-title">{projects.currentProject.title}</h5>
@@ -327,7 +333,7 @@ export const Project = observer((props) => {
                                                             <div className="activite-label" style={{width: "100px"}}>{dayjs(log.changedOn).fromNow()}</div>
                                                             <i className='bi bi-circle-fill activity-badge text-info align-self-start'></i>
                                                             <div className="activity-content">
-                                                                <a className="fw-bold text-dark">{log.name}</a> - {log.status}
+                                                                <a className="fw-bold text-dark">{log.taskName}</a> - {log.status}
                                                             </div>
                                                         </div>
 
@@ -336,7 +342,7 @@ export const Project = observer((props) => {
                                                             <div className="activite-label" style={{width: "100px"}}>{dayjs(log.changedOn).fromNow()}</div>
                                                             <i className='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
                                                             <div className="activity-content">
-                                                                <a className="fw-bold text-dark">{log.name}</a> - {log.status}
+                                                                <a className="fw-bold text-dark">{log.taskName}</a> - {log.status}
                                                             </div>
                                                         </div>
 
@@ -345,7 +351,7 @@ export const Project = observer((props) => {
                                                             <div className="activite-label" style={{width: "100px"}}>{dayjs(log.changedOn).fromNow()}</div>
                                                             <i className='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
                                                             <div className="activity-content">
-                                                                <a className="fw-bold text-dark">{log.name}</a> - {log.status}
+                                                                <a className="fw-bold text-dark">{log.taskName}</a> - {log.status}
                                                             </div>
                                                         </div>
 
@@ -354,7 +360,7 @@ export const Project = observer((props) => {
                                                             <div className="activite-label" style={{width: "100px"}}>{dayjs(log.changedOn).fromNow()}</div>
                                                             <i className='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
                                                             <div className="activity-content">
-                                                                <a className="fw-bold text-dark">{log.name}</a> - {log.status}
+                                                                <a className="fw-bold text-dark">{log.taskName}</a> - {log.status}
                                                             </div>
                                                         </div>
 
@@ -363,7 +369,7 @@ export const Project = observer((props) => {
                                                             <div className="activite-label" style={{width: "100px"}}>{dayjs(log.changedOn).fromNow()}</div>
                                                             <i className='bi bi-circle-fill activity-badge text-success align-self-start'></i>
                                                             <div className="activity-content">
-                                                                <a className="fw-bold text-dark">{log.name}</a> - {log.status}
+                                                                <a className="fw-bold text-dark">{log.taskName}</a> - {log.status}
                                                             </div>
                                                         </div>
                                                 }

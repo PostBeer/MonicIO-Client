@@ -90,10 +90,40 @@ export const leaveFromProject = async (id) => {
     })
 }
 
-export const loadTasksLog = async (id) => {
+export const loadTasksLogForProject = async (id) => {
     return axios({
         method: 'GET',
-        url: `${process.env.REACT_APP_SERVER_URL}/api/projects/${id}/log`,
+        url: `${process.env.REACT_APP_SERVER_URL}/api/log/project/${id}`,
+        headers: {
+            'Authorization': 'Bearer ' + getToken()
+        }
+    })
+}
+
+export const loadTasksLogForUser = async () => {
+    return axios({
+        method: 'GET',
+        url: `${process.env.REACT_APP_SERVER_URL}/api/log/user`,
+        headers: {
+            'Authorization': 'Bearer ' + getToken()
+        }
+    })
+}
+
+export const loadProjectsStatuses = async () => {
+    return axios({
+        method: 'GET',
+        url: `${process.env.REACT_APP_SERVER_URL}/api/projects/status`,
+        headers: {
+            'Authorization': 'Bearer ' + getToken()
+        }
+    })
+}
+
+export const loadTasksStatuses = async () => {
+    return axios({
+        method: 'GET',
+        url: `${process.env.REACT_APP_SERVER_URL}/api/projects/status/tasks`,
         headers: {
             'Authorization': 'Bearer ' + getToken()
         }
