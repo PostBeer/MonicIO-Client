@@ -89,3 +89,13 @@ export const leaveFromProject = async (id) => {
         }
     })
 }
+
+export const loadTasksLog = async (id) => {
+    return axios({
+        method: 'GET',
+        url: `${process.env.REACT_APP_SERVER_URL}/api/projects/${id}/log`,
+        headers: {
+            'Authorization': 'Bearer ' + getToken()
+        }
+    })
+}
