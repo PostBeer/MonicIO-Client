@@ -805,6 +805,29 @@ class BaseComponent extends Config {
         Data.set(this._element, this.constructor.DATA_KEY, this);
     } // Public
 
+    static get VERSION() {
+        return VERSION;
+    }
+
+    static get DATA_KEY() {
+        return `bs.${this.NAME}`;
+    }
+
+    static get EVENT_KEY() {
+        return `.${this.DATA_KEY}`;
+    }
+
+    static getInstance(element) {
+        return Data.get(getElement(element), this.DATA_KEY);
+    }
+
+    static getOrCreateInstance(element, config = {}) {
+        return this.getInstance(element) || new this(element, typeof config === 'object' ? config : null);
+    }
+
+    static eventName(name) {
+        return `${name}${this.EVENT_KEY}`;
+    }
 
     dispose() {
         Data.remove(this._element, this.constructor.DATA_KEY);
@@ -827,31 +850,6 @@ class BaseComponent extends Config {
 
         return config;
     } // Static
-
-
-    static getInstance(element) {
-        return Data.get(getElement(element), this.DATA_KEY);
-    }
-
-    static getOrCreateInstance(element, config = {}) {
-        return this.getInstance(element) || new this(element, typeof config === 'object' ? config : null);
-    }
-
-    static get VERSION() {
-        return VERSION;
-    }
-
-    static get DATA_KEY() {
-        return `bs.${this.NAME}`;
-    }
-
-    static get EVENT_KEY() {
-        return `.${this.DATA_KEY}`;
-    }
-
-    static eventName(name) {
-        return `${name}${this.EVENT_KEY}`;
-    }
 
 }
 
@@ -909,30 +907,6 @@ class Alert extends BaseComponent {
         return NAME$f;
     } // Public
 
-
-    close() {
-        const closeEvent = EventHandler.trigger(this._element, EVENT_CLOSE);
-
-        if (closeEvent.defaultPrevented) {
-            return;
-        }
-
-        this._element.classList.remove(CLASS_NAME_SHOW$8);
-
-        const isAnimated = this._element.classList.contains(CLASS_NAME_FADE$5);
-
-        this._queueCallback(() => this._destroyElement(), this._element, isAnimated);
-    } // Private
-
-
-    _destroyElement() {
-        this._element.remove();
-
-        EventHandler.trigger(this._element, EVENT_CLOSED);
-        this.dispose();
-    } // Static
-
-
     static jQueryInterface(config) {
         return this.each(function () {
             const data = Alert.getOrCreateInstance(this);
@@ -948,6 +922,27 @@ class Alert extends BaseComponent {
             data[config](this);
         });
     }
+
+    close() {
+        const closeEvent = EventHandler.trigger(this._element, EVENT_CLOSE);
+
+        if (closeEvent.defaultPrevented) {
+            return;
+        }
+
+        this._element.classList.remove(CLASS_NAME_SHOW$8);
+
+        const isAnimated = this._element.classList.contains(CLASS_NAME_FADE$5);
+
+        this._queueCallback(() => this._destroyElement(), this._element, isAnimated);
+    } // Private
+
+    _destroyElement() {
+        this._element.remove();
+
+        EventHandler.trigger(this._element, EVENT_CLOSED);
+        this.dispose();
+    } // Static
 
 }
 
@@ -991,13 +986,6 @@ class Button extends BaseComponent {
         return NAME$e;
     } // Public
 
-
-    toggle() {
-        // Toggle class and sync the `aria-pressed` attribute with the return value of the `.toggle()` method
-        this._element.setAttribute('aria-pressed', this._element.classList.toggle(CLASS_NAME_ACTIVE$3));
-    } // Static
-
-
     static jQueryInterface(config) {
         return this.each(function () {
             const data = Button.getOrCreateInstance(this);
@@ -1007,6 +995,11 @@ class Button extends BaseComponent {
             }
         });
     }
+
+    toggle() {
+        // Toggle class and sync the `aria-pressed` attribute with the return value of the `.toggle()` method
+        this._element.setAttribute('aria-pressed', this._element.classList.toggle(CLASS_NAME_ACTIVE$3));
+    } // Static
 
 }
 
@@ -1163,11 +1156,13 @@ class Swipe extends Config {
         return NAME$d;
     } // Public
 
+    static isSupported() {
+        return 'ontouchstart' in document.documentElement || navigator.maxTouchPoints > 0;
+    }
 
     dispose() {
         EventHandler.off(this._element, EVENT_KEY$9);
     } // Private
-
 
     _start(event) {
         if (!this._supportPointerEvents) {
@@ -1227,11 +1222,6 @@ class Swipe extends Config {
     _eventIsPointerPenTouch(event) {
         return this._supportPointerEvents && (event.pointerType === POINTER_TYPE_PEN || event.pointerType === POINTER_TYPE_TOUCH);
     } // Static
-
-
-    static isSupported() {
-        return 'ontouchstart' in document.documentElement || navigator.maxTouchPoints > 0;
-    }
 
 }
 
@@ -1335,6 +1325,24 @@ class Carousel extends BaseComponent {
         return NAME$c;
     } // Public
 
+    static jQueryInterface(config) {
+        return this.each(function () {
+            const data = Carousel.getOrCreateInstance(this, config);
+
+            if (typeof config === 'number') {
+                data.to(config);
+                return;
+            }
+
+            if (typeof config === 'string') {
+                if (data[config] === undefined || config.startsWith('_') || config === 'constructor') {
+                    throw new TypeError(`No method named "${config}"`);
+                }
+
+                data[config]();
+            }
+        });
+    }
 
     next() {
         this._slide(ORDER_NEXT);
@@ -1412,7 +1420,6 @@ class Carousel extends BaseComponent {
 
         super.dispose();
     } // Private
-
 
     _configAfterMerge(config) {
         config.defaultInterval = config.interval;
@@ -1614,26 +1621,6 @@ class Carousel extends BaseComponent {
         return order === ORDER_PREV ? DIRECTION_RIGHT : DIRECTION_LEFT;
     } // Static
 
-
-    static jQueryInterface(config) {
-        return this.each(function () {
-            const data = Carousel.getOrCreateInstance(this, config);
-
-            if (typeof config === 'number') {
-                data.to(config);
-                return;
-            }
-
-            if (typeof config === 'string') {
-                if (data[config] === undefined || config.startsWith('_') || config === 'constructor') {
-                    throw new TypeError(`No method named "${config}"`);
-                }
-
-                data[config]();
-            }
-        });
-    }
-
 }
 
 /**
@@ -1767,6 +1754,25 @@ class Collapse extends BaseComponent {
         return NAME$b;
     } // Public
 
+    static jQueryInterface(config) {
+        const _config = {};
+
+        if (typeof config === 'string' && /show|hide/.test(config)) {
+            _config.toggle = false;
+        }
+
+        return this.each(function () {
+            const data = Collapse.getOrCreateInstance(this, _config);
+
+            if (typeof config === 'string') {
+                if (typeof data[config] === 'undefined') {
+                    throw new TypeError(`No method named "${config}"`);
+                }
+
+                data[config]();
+            }
+        });
+    }
 
     toggle() {
         if (this._isShown()) {
@@ -1883,7 +1889,6 @@ class Collapse extends BaseComponent {
         return element.classList.contains(CLASS_NAME_SHOW$7);
     } // Private
 
-
     _configAfterMerge(config) {
         config.toggle = Boolean(config.toggle); // Coerce string values
 
@@ -1927,27 +1932,6 @@ class Collapse extends BaseComponent {
             element.setAttribute('aria-expanded', isOpen);
         }
     } // Static
-
-
-    static jQueryInterface(config) {
-        const _config = {};
-
-        if (typeof config === 'string' && /show|hide/.test(config)) {
-            _config.toggle = false;
-        }
-
-        return this.each(function () {
-            const data = Collapse.getOrCreateInstance(this, _config);
-
-            if (typeof config === 'string') {
-                if (typeof data[config] === 'undefined') {
-                    throw new TypeError(`No method named "${config}"`);
-                }
-
-                data[config]();
-            }
-        });
-    }
 
 }
 
@@ -2069,6 +2053,96 @@ class Dropdown extends BaseComponent {
         return NAME$a;
     } // Public
 
+    static jQueryInterface(config) {
+        return this.each(function () {
+            const data = Dropdown.getOrCreateInstance(this, config);
+
+            if (typeof config !== 'string') {
+                return;
+            }
+
+            if (typeof data[config] === 'undefined') {
+                throw new TypeError(`No method named "${config}"`);
+            }
+
+            data[config]();
+        });
+    }
+
+    static clearMenus(event) {
+        if (event.button === RIGHT_MOUSE_BUTTON || event.type === 'keyup' && event.key !== TAB_KEY$1) {
+            return;
+        }
+
+        const openToggles = SelectorEngine.find(SELECTOR_DATA_TOGGLE_SHOWN);
+
+        for (const toggle of openToggles) {
+            const context = Dropdown.getInstance(toggle);
+
+            if (!context || context._config.autoClose === false) {
+                continue;
+            }
+
+            const composedPath = event.composedPath();
+            const isMenuTarget = composedPath.includes(context._menu);
+
+            if (composedPath.includes(context._element) || context._config.autoClose === 'inside' && !isMenuTarget || context._config.autoClose === 'outside' && isMenuTarget) {
+                continue;
+            } // Tab navigation through the dropdown menu or events from contained inputs shouldn't close the menu
+
+
+            if (context._menu.contains(event.target) && (event.type === 'keyup' && event.key === TAB_KEY$1 || /input|select|option|textarea|form/i.test(event.target.tagName))) {
+                continue;
+            }
+
+            const relatedTarget = {
+                relatedTarget: context._element
+            };
+
+            if (event.type === 'click') {
+                relatedTarget.clickEvent = event;
+            }
+
+            context._completeHide(relatedTarget);
+        }
+    }
+
+    static dataApiKeydownHandler(event) {
+        // If not an UP | DOWN | ESCAPE key => not a dropdown command
+        // If input/textarea && if key is other than ESCAPE => not a dropdown command
+        const isInput = /input|textarea/i.test(event.target.tagName);
+        const isEscapeEvent = event.key === ESCAPE_KEY$2;
+        const isUpOrDownEvent = [ARROW_UP_KEY$1, ARROW_DOWN_KEY$1].includes(event.key);
+
+        if (!isUpOrDownEvent && !isEscapeEvent) {
+            return;
+        }
+
+        if (isInput && !isEscapeEvent) {
+            return;
+        }
+
+        event.preventDefault(); // todo: v6 revert #37011 & change markup https://getbootstrap.com/docs/5.2/forms/input-group/
+
+        const getToggleButton = this.matches(SELECTOR_DATA_TOGGLE$3) ? this : SelectorEngine.prev(this, SELECTOR_DATA_TOGGLE$3)[0] || SelectorEngine.next(this, SELECTOR_DATA_TOGGLE$3)[0] || SelectorEngine.findOne(SELECTOR_DATA_TOGGLE$3, event.delegateTarget.parentNode);
+        const instance = Dropdown.getOrCreateInstance(getToggleButton);
+
+        if (isUpOrDownEvent) {
+            event.stopPropagation();
+            instance.show();
+
+            instance._selectMenuItem(event);
+
+            return;
+        }
+
+        if (instance._isShown()) {
+            // else is escape and we check if it is shown
+            event.stopPropagation();
+            instance.hide();
+            getToggleButton.focus();
+        }
+    }
 
     toggle() {
         return this._isShown() ? this.hide() : this.show();
@@ -2138,7 +2212,6 @@ class Dropdown extends BaseComponent {
             this._popper.update();
         }
     } // Private
-
 
     _completeHide(relatedTarget) {
         const hideEvent = EventHandler.trigger(this._element, EVENT_HIDE$5, relatedTarget);
@@ -2298,98 +2371,6 @@ class Dropdown extends BaseComponent {
 
         getNextActiveElement(items, target, key === ARROW_DOWN_KEY$1, !items.includes(target)).focus();
     } // Static
-
-
-    static jQueryInterface(config) {
-        return this.each(function () {
-            const data = Dropdown.getOrCreateInstance(this, config);
-
-            if (typeof config !== 'string') {
-                return;
-            }
-
-            if (typeof data[config] === 'undefined') {
-                throw new TypeError(`No method named "${config}"`);
-            }
-
-            data[config]();
-        });
-    }
-
-    static clearMenus(event) {
-        if (event.button === RIGHT_MOUSE_BUTTON || event.type === 'keyup' && event.key !== TAB_KEY$1) {
-            return;
-        }
-
-        const openToggles = SelectorEngine.find(SELECTOR_DATA_TOGGLE_SHOWN);
-
-        for (const toggle of openToggles) {
-            const context = Dropdown.getInstance(toggle);
-
-            if (!context || context._config.autoClose === false) {
-                continue;
-            }
-
-            const composedPath = event.composedPath();
-            const isMenuTarget = composedPath.includes(context._menu);
-
-            if (composedPath.includes(context._element) || context._config.autoClose === 'inside' && !isMenuTarget || context._config.autoClose === 'outside' && isMenuTarget) {
-                continue;
-            } // Tab navigation through the dropdown menu or events from contained inputs shouldn't close the menu
-
-
-            if (context._menu.contains(event.target) && (event.type === 'keyup' && event.key === TAB_KEY$1 || /input|select|option|textarea|form/i.test(event.target.tagName))) {
-                continue;
-            }
-
-            const relatedTarget = {
-                relatedTarget: context._element
-            };
-
-            if (event.type === 'click') {
-                relatedTarget.clickEvent = event;
-            }
-
-            context._completeHide(relatedTarget);
-        }
-    }
-
-    static dataApiKeydownHandler(event) {
-        // If not an UP | DOWN | ESCAPE key => not a dropdown command
-        // If input/textarea && if key is other than ESCAPE => not a dropdown command
-        const isInput = /input|textarea/i.test(event.target.tagName);
-        const isEscapeEvent = event.key === ESCAPE_KEY$2;
-        const isUpOrDownEvent = [ARROW_UP_KEY$1, ARROW_DOWN_KEY$1].includes(event.key);
-
-        if (!isUpOrDownEvent && !isEscapeEvent) {
-            return;
-        }
-
-        if (isInput && !isEscapeEvent) {
-            return;
-        }
-
-        event.preventDefault(); // todo: v6 revert #37011 & change markup https://getbootstrap.com/docs/5.2/forms/input-group/
-
-        const getToggleButton = this.matches(SELECTOR_DATA_TOGGLE$3) ? this : SelectorEngine.prev(this, SELECTOR_DATA_TOGGLE$3)[0] || SelectorEngine.next(this, SELECTOR_DATA_TOGGLE$3)[0] || SelectorEngine.findOne(SELECTOR_DATA_TOGGLE$3, event.delegateTarget.parentNode);
-        const instance = Dropdown.getOrCreateInstance(getToggleButton);
-
-        if (isUpOrDownEvent) {
-            event.stopPropagation();
-            instance.show();
-
-            instance._selectMenuItem(event);
-
-            return;
-        }
-
-        if (instance._isShown()) {
-            // else is escape and we check if it is shown
-            event.stopPropagation();
-            instance.hide();
-            getToggleButton.focus();
-        }
-    }
 
 }
 
@@ -2863,6 +2844,21 @@ class Modal extends BaseComponent {
         return NAME$7;
     } // Public
 
+    static jQueryInterface(config, relatedTarget) {
+        return this.each(function () {
+            const data = Modal.getOrCreateInstance(this, config);
+
+            if (typeof config !== 'string') {
+                return;
+            }
+
+            if (typeof data[config] === 'undefined') {
+                throw new TypeError(`No method named "${config}"`);
+            }
+
+            data[config](relatedTarget);
+        });
+    }
 
     toggle(relatedTarget) {
         return this._isShown ? this.hide() : this.show(relatedTarget);
@@ -2929,7 +2925,6 @@ class Modal extends BaseComponent {
     handleUpdate() {
         this._adjustDialog();
     } // Private
-
 
     _initializeBackDrop() {
         return new Backdrop({
@@ -3108,23 +3103,6 @@ class Modal extends BaseComponent {
         this._element.style.paddingRight = '';
     } // Static
 
-
-    static jQueryInterface(config, relatedTarget) {
-        return this.each(function () {
-            const data = Modal.getOrCreateInstance(this, config);
-
-            if (typeof config !== 'string') {
-                return;
-            }
-
-            if (typeof data[config] === 'undefined') {
-                throw new TypeError(`No method named "${config}"`);
-            }
-
-            data[config](relatedTarget);
-        });
-    }
-
 }
 
 /**
@@ -3236,6 +3214,21 @@ class Offcanvas extends BaseComponent {
         return NAME$6;
     } // Public
 
+    static jQueryInterface(config) {
+        return this.each(function () {
+            const data = Offcanvas.getOrCreateInstance(this, config);
+
+            if (typeof config !== 'string') {
+                return;
+            }
+
+            if (data[config] === undefined || config.startsWith('_') || config === 'constructor') {
+                throw new TypeError(`No method named "${config}"`);
+            }
+
+            data[config](this);
+        });
+    }
 
     toggle(relatedTarget) {
         return this._isShown ? this.hide() : this.show(relatedTarget);
@@ -3331,7 +3324,6 @@ class Offcanvas extends BaseComponent {
         super.dispose();
     } // Private
 
-
     _initializeBackDrop() {
         const clickCallback = () => {
             if (this._config.backdrop === 'static') {
@@ -3373,23 +3365,6 @@ class Offcanvas extends BaseComponent {
             this.hide();
         });
     } // Static
-
-
-    static jQueryInterface(config) {
-        return this.each(function () {
-            const data = Offcanvas.getOrCreateInstance(this, config);
-
-            if (typeof config !== 'string') {
-                return;
-            }
-
-            if (data[config] === undefined || config.startsWith('_') || config === 'constructor') {
-                throw new TypeError(`No method named "${config}"`);
-            }
-
-            data[config](this);
-        });
-    }
 
 }
 
@@ -3830,6 +3805,21 @@ class Tooltip extends BaseComponent {
         return NAME$4;
     } // Public
 
+    static jQueryInterface(config) {
+        return this.each(function () {
+            const data = Tooltip.getOrCreateInstance(this, config);
+
+            if (typeof config !== 'string') {
+                return;
+            }
+
+            if (typeof data[config] === 'undefined') {
+                throw new TypeError(`No method named "${config}"`);
+            }
+
+            data[config]();
+        });
+    }
 
     enable() {
         this._isEnabled = true;
@@ -3995,7 +3985,6 @@ class Tooltip extends BaseComponent {
         }
     } // Protected
 
-
     _isWithContent() {
         return Boolean(this._getTitle());
     }
@@ -4064,7 +4053,6 @@ class Tooltip extends BaseComponent {
     _getTitle() {
         return this._resolvePossibleFunction(this._config.title) || this._element.getAttribute('data-bs-original-title');
     } // Private
-
 
     _initializeOnDelegatedTarget(event) {
         return this.constructor.getOrCreateInstance(event.delegateTarget, this._getDelegateConfig());
@@ -4305,23 +4293,6 @@ class Tooltip extends BaseComponent {
         }
     } // Static
 
-
-    static jQueryInterface(config) {
-        return this.each(function () {
-            const data = Tooltip.getOrCreateInstance(this, config);
-
-            if (typeof config !== 'string') {
-                return;
-            }
-
-            if (typeof data[config] === 'undefined') {
-                throw new TypeError(`No method named "${config}"`);
-            }
-
-            data[config]();
-        });
-    }
-
 }
 
 /**
@@ -4375,24 +4346,6 @@ class Popover extends Tooltip {
         return NAME$3;
     } // Overrides
 
-
-    _isWithContent() {
-        return this._getTitle() || this._getContent();
-    } // Private
-
-
-    _getContentForTemplate() {
-        return {
-            [SELECTOR_TITLE]: this._getTitle(),
-            [SELECTOR_CONTENT]: this._getContent()
-        };
-    }
-
-    _getContent() {
-        return this._resolvePossibleFunction(this._config.content);
-    } // Static
-
-
     static jQueryInterface(config) {
         return this.each(function () {
             const data = Popover.getOrCreateInstance(this, config);
@@ -4408,6 +4361,21 @@ class Popover extends Tooltip {
             data[config]();
         });
     }
+
+    _isWithContent() {
+        return this._getTitle() || this._getContent();
+    } // Private
+
+    _getContentForTemplate() {
+        return {
+            [SELECTOR_TITLE]: this._getTitle(),
+            [SELECTOR_CONTENT]: this._getContent()
+        };
+    }
+
+    _getContent() {
+        return this._resolvePossibleFunction(this._config.content);
+    } // Static
 
 }
 
@@ -4496,6 +4464,21 @@ class ScrollSpy extends BaseComponent {
         return NAME$2;
     } // Public
 
+    static jQueryInterface(config) {
+        return this.each(function () {
+            const data = ScrollSpy.getOrCreateInstance(this, config);
+
+            if (typeof config !== 'string') {
+                return;
+            }
+
+            if (data[config] === undefined || config.startsWith('_') || config === 'constructor') {
+                throw new TypeError(`No method named "${config}"`);
+            }
+
+            data[config]();
+        });
+    }
 
     refresh() {
         this._initializeTargetsAndObservables();
@@ -4518,7 +4501,6 @@ class ScrollSpy extends BaseComponent {
 
         super.dispose();
     } // Private
-
 
     _configAfterMerge(config) {
         // TODO: on v6 target should be given explicitly & remove the {target: 'ss-target'} case
@@ -4570,7 +4552,6 @@ class ScrollSpy extends BaseComponent {
         };
         return new IntersectionObserver(entries => this._observerCallback(entries), options);
     } // The logic of selection
-
 
     _observerCallback(entries) {
         const targetElement = entry => this._targetLinks.get(`#${entry.target.id}`);
@@ -4676,23 +4657,6 @@ class ScrollSpy extends BaseComponent {
         }
     } // Static
 
-
-    static jQueryInterface(config) {
-        return this.each(function () {
-            const data = ScrollSpy.getOrCreateInstance(this, config);
-
-            if (typeof config !== 'string') {
-                return;
-            }
-
-            if (data[config] === undefined || config.startsWith('_') || config === 'constructor') {
-                throw new TypeError(`No method named "${config}"`);
-            }
-
-            data[config]();
-        });
-    }
-
 }
 
 /**
@@ -4775,6 +4739,21 @@ class Tab extends BaseComponent {
         return NAME$1;
     } // Public
 
+    static jQueryInterface(config) {
+        return this.each(function () {
+            const data = Tab.getOrCreateInstance(this);
+
+            if (typeof config !== 'string') {
+                return;
+            }
+
+            if (data[config] === undefined || config.startsWith('_') || config === 'constructor') {
+                throw new TypeError(`No method named "${config}"`);
+            }
+
+            data[config]();
+        });
+    }
 
     show() {
         // Shows this elem and deactivate the active sibling if exists
@@ -4802,7 +4781,6 @@ class Tab extends BaseComponent {
 
         this._activate(innerElem, active);
     } // Private
-
 
     _activate(element, relatedElem) {
         if (!element) {
@@ -4966,32 +4944,13 @@ class Tab extends BaseComponent {
         return elem.classList.contains(CLASS_NAME_ACTIVE);
     } // Try to get the inner element (usually the .nav-link)
 
-
     _getInnerElement(elem) {
         return elem.matches(SELECTOR_INNER_ELEM) ? elem : SelectorEngine.findOne(SELECTOR_INNER_ELEM, elem);
     } // Try to get the outer element (usually the .nav-item)
 
-
     _getOuterElement(elem) {
         return elem.closest(SELECTOR_OUTER) || elem;
     } // Static
-
-
-    static jQueryInterface(config) {
-        return this.each(function () {
-            const data = Tab.getOrCreateInstance(this);
-
-            if (typeof config !== 'string') {
-                return;
-            }
-
-            if (data[config] === undefined || config.startsWith('_') || config === 'constructor') {
-                throw new TypeError(`No method named "${config}"`);
-            }
-
-            data[config]();
-        });
-    }
 
 }
 
@@ -5090,6 +5049,19 @@ class Toast extends BaseComponent {
         return NAME;
     } // Public
 
+    static jQueryInterface(config) {
+        return this.each(function () {
+            const data = Toast.getOrCreateInstance(this, config);
+
+            if (typeof config === 'string') {
+                if (typeof data[config] === 'undefined') {
+                    throw new TypeError(`No method named "${config}"`);
+                }
+
+                data[config](this);
+            }
+        });
+    }
 
     show() {
         const showEvent = EventHandler.trigger(this._element, EVENT_SHOW);
@@ -5161,7 +5133,6 @@ class Toast extends BaseComponent {
         return this._element.classList.contains(CLASS_NAME_SHOW);
     } // Private
 
-
     _maybeScheduleHide() {
         if (!this._config.autohide) {
             return;
@@ -5217,21 +5188,6 @@ class Toast extends BaseComponent {
         clearTimeout(this._timeout);
         this._timeout = null;
     } // Static
-
-
-    static jQueryInterface(config) {
-        return this.each(function () {
-            const data = Toast.getOrCreateInstance(this, config);
-
-            if (typeof config === 'string') {
-                if (typeof data[config] === 'undefined') {
-                    throw new TypeError(`No method named "${config}"`);
-                }
-
-                data[config](this);
-            }
-        });
-    }
 
 }
 

@@ -93,21 +93,20 @@ interface EventDispatcherSettings {
 
 interface EventDispatcherConstructor<T extends NativeEventMap> {
     readonly prototype: EventDispatcher<T>;
+    isNative: (name: string) => boolean;
 
     new(settings?: EventDispatcherSettings): EventDispatcher<T>;
-
-    isNative: (name: string) => boolean;
 }
 
 declare class EventDispatcher<T> {
-    static isNative(name: string): boolean;
-
     private readonly settings;
     private readonly scope;
     private readonly toggleEvent;
     private bindings;
 
     constructor(settings?: EventDispatcherSettings);
+
+    static isNative(name: string): boolean;
 
     fire<K extends string, U extends MappedEvent<T, K>>(name: K, args?: U): EditorEvent<U>;
 
@@ -281,8 +280,6 @@ interface AstNodeConstructor {
 }
 
 declare class AstNode {
-    static create(name: string, attrs?: Record<string, string>): AstNode;
-
     name: string;
     type: number;
     attributes?: Attributes$1;
@@ -295,6 +292,8 @@ declare class AstNode {
     raw?: boolean;
 
     constructor(name: string, type: number);
+
+    static create(name: string, attrs?: Record<string, string>): AstNode;
 
     replace(node: AstNode): AstNode;
 
@@ -402,12 +401,11 @@ interface BlobInfoImagePair {
 declare class NodeChange {
     private readonly editor;
     private lastPath;
+    private isSameElementPath;
 
     constructor(editor: Editor);
 
     nodeChanged(args?: Record<string, any>): void;
-
-    private isSameElementPath;
 }
 
 interface SelectionOverrides {
@@ -2492,10 +2490,9 @@ interface CallbackList<T> extends Array<Callback$1<T>> {
 
 interface EventUtilsConstructor {
     readonly prototype: EventUtils;
+    Event: EventUtils;
 
     new(): EventUtils;
-
-    Event: EventUtils;
 }
 
 declare class EventUtils {
@@ -2505,14 +2502,18 @@ declare class EventUtils {
     private readonly expando;
     private hasFocusIn;
     private count;
+    private executeHandlers;
 
     constructor();
 
     bind<K extends keyof HTMLElementEventMap>(target: any, name: K, callback: EventUtilsCallback<HTMLElementEventMap[K]>, scope?: any): EventUtilsCallback<HTMLElementEventMap[K]>;
+
     bind<T = any>(target: any, names: string, callback: EventUtilsCallback<T>, scope?: any): EventUtilsCallback<T>;
 
     unbind<K extends keyof HTMLElementEventMap>(target: any, name: K, callback?: EventUtilsCallback<HTMLElementEventMap[K]>): this;
+
     unbind<T = any>(target: any, names: string, callback?: EventUtilsCallback<T>): this;
+
     unbind(target: any): this;
 
     fire(target: any, name: string, args?: {}): this;
@@ -2524,8 +2525,6 @@ declare class EventUtils {
     destroy(): void;
 
     cancel<T>(e: EventUtilsEvent<T>): boolean;
-
-    private executeHandlers;
 }
 
 interface SetAttribEvent {
@@ -2664,11 +2663,6 @@ interface DOMUtils {
         (elm: Element, name: string): Element;
     };
     findCommonAncestor: (a: Node, b: Node) => Node | null;
-
-    run<R, T extends Node>(this: DOMUtils, elm: T | T[], func: (node: T) => R, scope?: any): typeof elm extends Array<any> ? R[] : R;
-
-    run<R, T extends Node>(this: DOMUtils, elm: RunArguments<T>, func: (node: T) => R, scope?: any): RunResult<typeof elm, R>;
-
     isEmpty: (node: Node, elements?: Record<string, any>) => boolean;
     createRng: () => Range;
     nodeIndex: (node: Node, normalized?: boolean) => number;
@@ -2691,6 +2685,10 @@ interface DOMUtils {
     destroy: () => void;
     isChildOf: (node: Node, parent: Node) => boolean;
     dumpRng: (r: Range) => string;
+
+    run<R, T extends Node>(this: DOMUtils, elm: T | T[], func: (node: T) => R, scope?: any): typeof elm extends Array<any> ? R[] : R;
+
+    run<R, T extends Node>(this: DOMUtils, elm: RunArguments<T>, func: (node: T) => R, scope?: any): RunResult<typeof elm, R>;
 }
 
 interface ClientRect {
@@ -2918,9 +2916,6 @@ interface URISettings {
 
 interface URIConstructor {
     readonly prototype: URI;
-
-    new(url: string, settings?: URISettings): URI;
-
     getDocumentBaseUrl: (loc: {
         protocol: string;
         host?: string;
@@ -2931,6 +2926,8 @@ interface URIConstructor {
         type: string;
         data: string;
     };
+
+    new(url: string, settings?: URISettings): URI;
 }
 
 interface SafeUriOptions {
@@ -2940,20 +2937,6 @@ interface SafeUriOptions {
 }
 
 declare class URI {
-    static parseDataUri(uri: string): {
-        type: string | undefined;
-        data: string;
-    };
-
-    static isDomSafe(uri: string, context?: string, options?: SafeUriOptions): boolean;
-
-    static getDocumentBaseUrl(loc: {
-        protocol: string;
-        host?: string;
-        href?: string;
-        pathname?: string;
-    }): string;
-
     source: string;
     protocol: string | undefined;
     authority: string | undefined;
@@ -2971,6 +2954,20 @@ declare class URI {
     settings: URISettings;
 
     constructor(url: string, settings?: URISettings);
+
+    static parseDataUri(uri: string): {
+        type: string | undefined;
+        data: string;
+    };
+
+    static isDomSafe(uri: string, context?: string, options?: SafeUriOptions): boolean;
+
+    static getDocumentBaseUrl(loc: {
+        protocol: string;
+        host?: string;
+        href?: string;
+        pathname?: string;
+    }): string;
 
     setPath(path: string): void;
 
@@ -2999,10 +2996,11 @@ interface EditorManager extends Observable<EditorManagerEventMap> {
     documentBaseURL: string;
     i18n: I18n;
     suffix: string;
+    addI18n: (code: string, item: Record<string, string>) => void;
+    translate: (text: Untranslated) => TranslatedString;
+    triggerSave: () => void;
 
     add(this: EditorManager, editor: Editor): Editor;
-
-    addI18n: (code: string, item: Record<string, string>) => void;
 
     createEditor(this: EditorManager, id: string, options: RawEditorOptions): Editor;
 
@@ -3025,9 +3023,6 @@ interface EditorManager extends Observable<EditorManagerEventMap> {
     setActive(this: EditorManager, editor: Editor): void;
 
     setup(this: EditorManager): void;
-
-    translate: (text: Untranslated) => TranslatedString;
-    triggerSave: () => void;
 
     _setBaseUrl(this: EditorManager, baseUrl: string): void;
 }
@@ -3203,19 +3198,18 @@ declare class Shortcuts {
     private readonly editor;
     private readonly shortcuts;
     private pendingPatterns;
-
-    constructor(editor: Editor);
-
-    add(pattern: string, desc: string | null, cmdFunc: CommandFunc, scope?: any): boolean;
-
-    remove(pattern: string): boolean;
-
     private normalizeCommandFunc;
     private createShortcut;
     private hasModifier;
     private isFunctionKey;
     private matchShortcut;
     private executeShortcutAction;
+
+    constructor(editor: Editor);
+
+    add(pattern: string, desc: string | null, cmdFunc: CommandFunc, scope?: any): boolean;
+
+    remove(pattern: string): boolean;
 }
 
 interface RenderResult {
@@ -3448,10 +3442,9 @@ interface ScriptLoaderSettings {
 
 interface ScriptLoaderConstructor {
     readonly prototype: ScriptLoader;
+    ScriptLoader: ScriptLoader;
 
     new(): ScriptLoader;
-
-    ScriptLoader: ScriptLoader;
 }
 
 declare class ScriptLoader {
@@ -3505,6 +3498,8 @@ interface DomTreeWalkerConstructor {
 declare class DomTreeWalker {
     private readonly rootNode;
     private node;
+    private findSibling;
+    private findPreviousNode;
 
     constructor(startNode: Node, rootNode: Node);
 
@@ -3515,9 +3510,6 @@ declare class DomTreeWalker {
     prev(shallow?: boolean): Node | null | undefined;
 
     prev2(shallow?: boolean): Node | null | undefined;
-
-    private findSibling;
-    private findPreviousNode;
 }
 
 interface Version {
@@ -3709,36 +3701,36 @@ interface VK {
 }
 
 interface DOMUtilsNamespace {
-    (doc: Document, settings: Partial<DOMUtilsSettings>): DOMUtils;
-
     DOM: DOMUtils;
     nodeIndex: (node: Node, normalized?: boolean) => number;
+
+    (doc: Document, settings: Partial<DOMUtilsSettings>): DOMUtils;
 }
 
 interface RangeUtilsNamespace {
-    (dom: DOMUtils): RangeUtils;
-
     compareRanges: (rng1: RangeLikeObject, rng2: RangeLikeObject) => boolean;
     getCaretRangeFromPoint: (clientX: number, clientY: number, doc: Document) => Range;
     getSelectedNode: (range: Range) => Node;
     getNode: (container: Node, offset: number) => Node;
+
+    (dom: DOMUtils): RangeUtils;
 }
 
 interface AddOnManagerNamespace {
-    <T>(): AddOnManager<T>;
-
     language: string | undefined;
     languageLoad: boolean;
     baseURL: string;
     PluginManager: PluginManager;
     ThemeManager: ThemeManager;
     ModelManager: ModelManager;
+
+    <T>(): AddOnManager<T>;
 }
 
 interface BookmarkManagerNamespace {
-    (selection: EditorSelection): BookmarkManager;
-
     isBookmarkNode: (node: Node) => boolean;
+
+    (selection: EditorSelection): BookmarkManager;
 }
 
 interface TinyMCE extends EditorManager {

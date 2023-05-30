@@ -61,7 +61,6 @@ export const ProjectList = observer(() => {
 
         }
         const removeProject = async (id) => {
-            console.log(id)
             await deleteProject(id).then(() =>
                 projects.setProjects(projects.projects.filter((project) => project.id !== id))
             )
@@ -70,7 +69,7 @@ export const ProjectList = observer(() => {
             await sendProjectRequest(id).then((response) => {
                     projects.setProjects(projects.projects.filter((project) => project.id !== id))
                     projects.projects.push(response.data)
-                    console.log(projects.projects)
+
                 }
             )
         }

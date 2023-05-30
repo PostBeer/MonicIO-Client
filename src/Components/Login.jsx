@@ -18,7 +18,6 @@ const Login = observer(() => {
         setLoading(true);
         setError();
         await login(username, password).then(response => {
-                console.log(response)
                 user.setUser(response);
                 user.setIsAuth(true);
                 navigate('/');

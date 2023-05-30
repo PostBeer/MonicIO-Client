@@ -25,7 +25,7 @@ export const Home = observer((props) => {
         loadTasksStatuses().then((response) => {
             setTaskStatuses(response.data.content);
         })
-    })
+    }, [])
 
     return (
         <div>
@@ -37,7 +37,7 @@ export const Home = observer((props) => {
                     <h1>Мониторинг проектов</h1>
                     <nav>
                         <ol className="breadcrumb">
-                            <li className="breadcrumb-item"><NavLink to="index.html">Главная</NavLink></li>
+                            <li className="breadcrumb-item"><NavLink to="/">Главная</NavLink></li>
                             <li className="breadcrumb-item active">Мониторинг проектов</li>
                         </ol>
                     </nav>
@@ -58,8 +58,8 @@ export const Home = observer((props) => {
                                         <div className="card-body">
                                             <h5 className="card-title">Статус проектов</h5>
 
-                                            {projectsStatuses !== 0 ?
-                                                <table className="table table-borderless">
+                                            {projectsStatuses.length !== 0 ?
+                                                <table className="table table-borderless text-center">
                                                     <thead>
                                                     <tr>
                                                         <th scope="col">#</th>
@@ -79,7 +79,7 @@ export const Home = observer((props) => {
                                                                     <td><NavLink to="#"
                                                                                  className="text-primary">{project.title}</NavLink>
                                                                     </td>
-                                                                    <td>8</td>
+                                                                    <td>{project.tasks.length}</td>
                                                                     <td><span
                                                                         className="badge bg-warning">{project.status}</span>
                                                                     </td>
@@ -92,7 +92,7 @@ export const Home = observer((props) => {
                                                                     <td><NavLink to="#"
                                                                                  className="text-primary">{project.title}</NavLink>
                                                                     </td>
-                                                                    <td>8</td>
+                                                                    <td>{project.tasks.length}</td>
                                                                     <td><span
                                                                         className="badge bg-success">{project.status}</span>
                                                                     </td>
@@ -114,14 +114,14 @@ export const Home = observer((props) => {
 
 
                                 <div className="col-12">
-                                    <div className="card top-selling overflow-auto">
+                                    <div className="card recent-sales overflow-auto">
 
 
-                                        <div className="card-body pb-0">
+                                        <div className="card-body">
                                             <h5 className="card-title">Статус задач</h5>
 
-                                            {tasksStatuses !== 0 ?
-                                                <table className="table table-borderless">
+                                            {tasksStatuses.length !== 0 ?
+                                                <table className="table table-borderless text-center">
                                                     <thead>
                                                     <tr>
                                                         <th scope="col">Задача</th>

@@ -10156,13 +10156,8 @@
             }
         }
 
-        updateControlPoints(chartArea, indexAxis) {
-            const options = this.options;
-            if ((options.tension || options.cubicInterpolationMode === 'monotone') && !options.stepped && !this._pointsUpdated) {
-                const loop = options.spanGaps ? this._loop : this._fullLoop;
-                _updateBezierControlPoints(this._points, options, chartArea, loop, indexAxis);
-                this._pointsUpdated = true;
-            }
+        get points() {
+            return this._points;
         }
 
         set points(points) {
@@ -10172,12 +10167,17 @@
             this._pointsUpdated = false;
         }
 
-        get points() {
-            return this._points;
-        }
-
         get segments() {
             return this._segments || (this._segments = _computeSegments(this, this.options.segment));
+        }
+
+        updateControlPoints(chartArea, indexAxis) {
+            const options = this.options;
+            if ((options.tension || options.cubicInterpolationMode === 'monotone') && !options.stepped && !this._pointsUpdated) {
+                const loop = options.spanGaps ? this._loop : this._fullLoop;
+                _updateBezierControlPoints(this._points, options, chartArea, loop, indexAxis);
+                this._pointsUpdated = true;
+            }
         }
 
         first() {

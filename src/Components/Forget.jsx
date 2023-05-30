@@ -20,7 +20,7 @@ const Forget = () => {
         setTimeout(() => {
             setLoading(true);
             checkPasswordToken(token).then((response) => {
-                console.log(response);
+
                 if (response.status === 200) {
                     setSuccess(true);
                 } else {

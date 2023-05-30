@@ -59,11 +59,12 @@ export const Contact = () => {
                                 </div>
                                 <div className="col-lg-6">
                                     <div className="info-box card">
-                                        <i className="bi bi-telephone"></i>
-                                        <h3>Позвоните нам</h3>
-                                        <p>8 985 366 14 11</p>
+                                        <i className="bi bi-clock"></i>
+                                        <h3>Часы работы</h3>
+                                        <p>Понедельник - Пятница<br/>9:00 - 17:00</p>
                                     </div>
                                 </div>
+
                                 <div className="col-lg-6">
                                     <div className="info-box card">
                                         <i className="bi bi-envelope"></i>
@@ -73,11 +74,12 @@ export const Contact = () => {
                                 </div>
                                 <div className="col-lg-6">
                                     <div className="info-box card">
-                                        <i className="bi bi-clock"></i>
-                                        <h3>Часы работы</h3>
-                                        <p>Понедельник - Пятница<br/>9:00 - 17:00</p>
+                                        <i className="bi bi-telephone"></i>
+                                        <h3>Позвоните нам</h3>
+                                        <p>8 985 366 14 11</p>
                                     </div>
                                 </div>
+
                             </div>
 
                         </div>

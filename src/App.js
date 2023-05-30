@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap/dist/js/bootstrap.js';
 import './assets/css/style.css'
 import "./assets/js/main.js"
+import "./assets/css/chat.css"
 import "./assets/vendor/bootstrap-icons/bootstrap-icons.css"
 import {authRoutes, publicRoutes} from "./routes";
 import 'dayjs/locale/ru'
@@ -18,7 +19,6 @@ import {loadProjects} from "./http/projectApi";
 dayjs.locale('ru')
 
 export const avatarPicture = (userWithAvatar) => {
-    console.log(userWithAvatar)
     if (userWithAvatar.avatar) {
         return process.env.REACT_APP_SERVER_URL + "/api/media/" + userWithAvatar.avatar.id
     } else {
@@ -39,7 +39,6 @@ const App = observer(() => {
                 user.setIsAuth(true)
                 user.setIsPM(data.data.roles.includes("PROJECT_MANAGER"))
                 console.log(getToken())
-
             }).finally(() => setLoading(false))
             loadProjects(process.env.REACT_APP_SERVER_URL + `/api/projects`).then((response) => {
                 projects.setProjects(response.data._embedded.projects)

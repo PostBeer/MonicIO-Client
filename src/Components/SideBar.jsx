@@ -56,7 +56,7 @@ export const SideBar = observer(() => {
                         :
                         <ul id="components-nav" className="nav-content collapse " data-bs-parent="#sidebar-nav">
                             <li>
-                                <NavLink to="components-alerts.html">
+                                <NavLink to="#">
                                     <i className="bi bi-circle"></i><span>У вас нет проектов</span>
                                 </NavLink>
                             </li>
