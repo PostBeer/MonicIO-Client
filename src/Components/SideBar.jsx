@@ -66,19 +66,6 @@ export const SideBar = observer(() => {
 
 
                 </li>
-                {user.isPM && < li className="nav-item">
-                    <NavLink className={location.pathname === '/team' ? 'nav-link' : 'nav-link collapsed'}
-                             to="/profile">
-                        <i className="bi bi-people"></i>
-                        <span>Сотрудники</span>
-                    </NavLink>
-                </li>}
-                <li className="nav-item">
-                    <NavLink className={location.pathname === '/tasks' ? 'nav-link' : 'nav-link collapsed'} to="/home">
-                        <i className="bi bi-clipboard-check"></i>
-                        <span>Мои задачи</span>
-                    </NavLink>
-                </li>
                 <li className="nav-item">
                     <NavLink className={location.pathname === '/profile' ? 'nav-link' : 'nav-link collapsed'}
                              to="/profile">

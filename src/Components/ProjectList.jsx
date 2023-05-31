@@ -97,6 +97,9 @@ export const ProjectList = observer(() => {
                                onClick={() => removeProject(project.id)}> Удалить
                     проект</button>
             } else {
+                if (project.status === "Завершён") {
+                    return
+                }
                 if (project.users.some((item) => item.username === user.user.username))
                     return <button className="btn btn-sm btn-danger"
                                    onClick={() => leaveProject(project.id)}> Покинуть проект</button>

@@ -18,6 +18,33 @@ export const createProject = async (title, description, creator, status) => {
     })
 }
 
+
+export const updateProject = async (id, title, description) => {
+
+    return axios({
+        method: 'PUT',
+        url: process.env.REACT_APP_SERVER_URL + `/api/projects/${id}/update`,
+        data: {
+            title: title,
+            description: description,
+        },
+        headers: {
+            'Authorization': 'Bearer ' + getToken()
+        }
+    })
+}
+
+export const completeProject = async (id) => {
+
+    return axios({
+        method: 'PUT',
+        url: process.env.REACT_APP_SERVER_URL + `/api/projects/${id}/complete`,
+        headers: {
+            'Authorization': 'Bearer ' + getToken()
+        }
+    })
+}
+
 export const loadProjects = async (url) => {
     return axios({
         method: 'GET',

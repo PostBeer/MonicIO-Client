@@ -2,13 +2,27 @@ import {Header} from "./Header";
 import {SideBar} from "./SideBar";
 import {Footer} from "./Footer";
 import {avatarPicture} from "../App";
-import {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Context} from "../index";
 import {NavLink, useParams} from "react-router-dom";
 import {observer} from "mobx-react-lite";
-import {createTask, loadTasks} from "../http/taskApi";
+import {
+    cancelTaskCheck,
+    checkTask,
+    createTask,
+    deleteTask,
+    loadTasks,
+    sendTaskForCheck,
+    takeTask
+} from "../http/taskApi";
 import dayjs from "dayjs";
-import {completeProjectRequest, loadProject, loadTasksLogForProject} from "../http/projectApi";
+import {
+    completeProject,
+    completeProjectRequest,
+    loadProject,
+    loadTasksLogForProject,
+    updateProject
+} from "../http/projectApi";
 import {getAllProjectMessages} from "../http/messagesApi";
 import {Message} from "./Message";
 import SockJS from "sockjs-client";
@@ -28,10 +42,14 @@ export const Project = observer((props) => {
     const [links, setLinks] = useState();
     const [name, setName] = useState();
     const [description, setDescription] = useState();
+    const [projectName, setProjectName] = useState();
+    const [projectDescription, setProjectDescription] = useState();
     const [completeDate, setCompleteDate] = useState();
     const [messages, setMessages] = useState([]);
     const [prevPath, setPrevPath] = useState(0);
     const [messageText, setMessageText] = useState();
+
+    const [errors, setErrors] = useState();
     const {id} = useParams()
 
     let chatArea = document.querySelector('#chatRoom')
@@ -87,15 +105,120 @@ export const Project = observer((props) => {
                 return "badge bg-success"
         }
     }
+
+    const updateProjectWithId = async () => {
+        setErrors()
+        await updateProject(id, projectName, projectDescription).then((response) => {
+            let currentProject = projects.currentProject
+            currentProject.name = projectName
+            currentProject.description = projectDescription
+            projects.setCurrentProject(currentProject)
+            setProjectName('')
+            setProjectDescription('')
+        }).catch((errors => {
+            setErrors(Object.fromEntries(errors.response.data.map(fieldError => [fieldError.field, fieldError.defaultMessage])))
+        }))
+    }
+
+    const completeCurrentProject = async () => {
+        await completeProject(id).then(() => {
+            let currentProject = projects.currentProject
+            currentProject.status = "Завершён"
+        })
+
+    }
+
     const createNewTask = async () => {
+        setErrors()
         await createTask(name, description, completeDate, projects.currentProject.id).then((response) => {
             setTasks(prevState => [...prevState, response.data])
             loadTasksLogForProject(id).then((response) => {
                 setLogs(response.data.content);
+                setName('')
+                setDescription('')
+                setCompleteDate()
             })
         }).catch((errors => {
-            console.log(errors)
+            setErrors(Object.fromEntries(errors.response.data.map(fieldError => [fieldError.field, fieldError.defaultMessage])))
         }))
+    }
+    const takeProjectTask = async (taskId) => {
+        await takeTask(id, taskId).then((response) => {
+            let newTasks = [...tasks]
+            newTasks[newTasks.indexOf(newTasks.find(item => item.id === response.data.id))] = response.data
+            setTasks(newTasks)
+        })
+    }
+
+    const sendProjectTaskForCheck = async (taskId) => {
+        await sendTaskForCheck(id, taskId).then((response) => {
+            let newTasks = [...tasks]
+            newTasks[newTasks.indexOf(newTasks.find(item => item.id === response.data.id))] = response.data
+            setTasks(newTasks)
+        })
+    }
+
+    const checkProjectTask = async (taskId, success) => {
+        await checkTask(id, taskId, success).then((response) => {
+            let newTasks = [...tasks]
+            newTasks[newTasks.indexOf(newTasks.find(item => item.id === response.data.id))] = response.data
+            setTasks(newTasks)
+        })
+    }
+    const cancelCheck = async (taskId) => {
+        await cancelTaskCheck(id, taskId).then((response) => {
+            let newTasks = [...tasks]
+            newTasks[newTasks.indexOf(newTasks.find(item => item.id === response.data.id))] = response.data
+            setTasks(newTasks)
+        })
+    }
+
+    const removeTask = async (taskId) => {
+        await deleteTask(taskId).then((response) => {
+            setTasks(prevState => prevState.filter((item) => item.id !== taskId))
+        })
+    }
+    const showActionButtons = (task) => {
+        if (user.user.username === projects.currentProject.creator.username) {
+            switch (task.status) {
+                case "Назначение исполнителя":
+                    return <button type="button"
+                                   className="btn btn-sm btn-danger"><i
+                        className="bi bi-trash" onClick={() => removeTask(task.id)}></i></button>
+                case "Отправлена на проверку":
+                    return <div>
+                        <button type="button"
+                                className="btn btn-sm btn-success m-1" onClick={() => checkProjectTask(task.id, true)}>
+                            <i
+                                className="bi bi-check-lg"></i></button>
+                        <button type="button"
+                                className="btn btn-sm btn-danger m-1" onClick={() => checkProjectTask(task.id, false)}>
+                            <i
+                                className="bi bi-x-lg"></i></button>
+                    </div>
+                case "Просрочена":
+                    return <button type="button"
+                                   className="btn btn-sm btn-danger"><i
+                        className="bi bi-trash" onClick={() => removeTask(task.id)}></i></button>
+            }
+        } else {
+            switch (task.status) {
+                case "Назначение исполнителя":
+                    return <button type="button"
+                                   className="btn btn-sm btn-success" onClick={() => takeProjectTask(task.id)}><i
+                        className="bi bi-check"></i></button>
+                case "Выполняется":
+                    return <button type="button"
+                                   className="btn btn-sm btn-success"
+                                   onClick={() => sendProjectTaskForCheck(task.id)}><i
+                        className="bi bi-envelope-check-fill"></i></button>
+                case "Отправлена на проверку":
+                    return <button type="button"
+                                   className="btn btn-sm btn-danger" onClick={() => cancelCheck(task.id)}><i
+                        className="bi bi-arrow-left"></i></button>
+            }
+        }
+
 
     }
 
@@ -122,7 +245,7 @@ export const Project = observer((props) => {
             setMessageText('')
         }
     }
-
+    console.log(tasks)
 
     return (<div>
         <Header/>
@@ -153,14 +276,75 @@ export const Project = observer((props) => {
                                     <div className="filter">
                                         {projects.currentProject.status === "Завершён" ? <button
                                                 className="btn btn-sm me-3 btn-success"
-                                                style={{color: "white"}}>{projects.currentProject.status}</button> :
+                                                style={{color: "white"}} data-bs-toggle="modal"
+                                                data-bs-target="#verticalycentered">{projects.currentProject.status}</button> :
                                             <button
                                                 className="btn btn-sm me-3 btn-warning"
-                                                style={{color: "white"}}>{projects.currentProject.status}</button>}
+                                                style={{color: "white"}} data-bs-toggle="modal"
+                                                data-bs-target="#verticalycentered">{projects.currentProject.status}</button>}
                                     </div>
                                     <div className="card-body">
                                         <h5 className="card-title">{projects.currentProject.title}</h5>
                                         {projects.currentProject.description}
+                                    </div>
+                                </div>
+                                <div className="modal fade" id="verticalycentered" tabIndex="-1">
+                                    <div className="modal-dialog modal-lg modal-dialog-centered">
+                                        <div className="modal-content">
+                                            <div className="modal-header">
+                                                <h5 className="modal-title">Изменение проекта</h5>
+                                                <button type="button" className="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                            </div>
+                                            <div className="modal-body">
+                                                <div className="card">
+                                                    <div className="card-body">
+                                                        <h5 className="card-title">Введите новые данные о проекте</h5>
+                                                        <div>
+                                                            <div className="row mb-3">
+                                                                <label htmlFor="inputEmail3"
+                                                                       className="col-sm-2 col-form-label">Название
+                                                                    проекта</label>
+                                                                <div className="col-sm-10">
+                                                                    <input type="text"
+                                                                           className={errors?.name ? "form-control is-invalid" : "form-control"}
+                                                                           onChange={(e) => setProjectName(e.target.value)}
+                                                                           id="inputText"/>
+                                                                    <div
+                                                                        className="invalid-feedback">{errors?.name}</div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="row mb-3">
+                                                                <label htmlFor="inputPassword3"
+                                                                       className="col-sm-2 col-form-label">Описание
+                                                                    проекта</label>
+                                                                <div className="col-sm-10">
+                                                                    <input type="text"
+                                                                           className={errors?.description ? "form-control is-invalid" : "form-control"}
+                                                                           onChange={(e) => setProjectDescription(e.target.value)}
+                                                                           id="inputPassword"/>
+                                                                    <div
+                                                                        className="invalid-feedback">{errors?.description}</div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-center">
+                                                                <button
+                                                                    className="btn btn-primary me-2"
+                                                                    onClick={() => updateProjectWithId()}>Внести
+                                                                    изменения
+                                                                </button>
+                                                                <button
+                                                                    className="btn btn-dark ms-2"
+                                                                    onClick={() => completeCurrentProject()}>Завершить
+                                                                    проект
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -183,9 +367,9 @@ export const Project = observer((props) => {
                                                 <th scope="col">Действия</th>
                                             </tr>
                                             </thead>
-                                            {tasks.length !== 0 ? <tbody className="text-center">
-                                                {tasks.map((task, index) => {
-                                                    return <tr>
+                                            {tasks?.length !== 0 ? <tbody className="text-center">
+                                                {tasks?.map((task, index) => {
+                                                    return <tr key={task.id}>
 
                                                         <th scope="row"><a href="#">{task.name}</a></th>
                                                         {task.implementer ?
@@ -196,14 +380,7 @@ export const Project = observer((props) => {
                                                             className={chooseStatus(task.status)}>{task.status}</span>
                                                         </td>
                                                         <td className="text-center">
-                                                            {user.user.username === projects.currentProject.creator.username ?
-                                                                <button type="button"
-                                                                        className="btn btn-sm btn-danger"><i
-                                                                    className="bi bi-trash"></i></button> :
-                                                                <button type="button"
-                                                                        className="btn btn-sm btn-success"><i
-                                                                    className="bi bi-check"></i></button>}
-
+                                                            {showActionButtons(task)}
                                                         </td>
                                                     </tr>
                                                 })}
@@ -228,7 +405,7 @@ export const Project = observer((props) => {
 
                                 </div>
                             </div>
-                            {user.isPM && <div className="col-12">
+                            {user.isPM && projects.currentProject.status !== "Завершён" && <div className="col-12">
                                 <div className="card">
                                     <div className="card-body">
                                         <h5 className="card-title">Создать новую задачу</h5>
@@ -241,26 +418,31 @@ export const Project = observer((props) => {
                                                     <input type="text"
                                                            placeholder="Введите название задачи"
                                                            onChange={e => setName(e.target.value)}
-                                                           className="form-control"/>
+                                                           className={errors?.name ? "form-control is-invalid" : "form-control"}/>
+                                                    <div className="invalid-feedback">{errors?.name}</div>
                                                 </div>
                                             </div>
                                             <div className="row mb-3">
                                                 <label htmlFor="inputPassword"
                                                        className="col-sm-2 col-form-label">Описание</label>
                                                 <div className="col-sm-10">
-                                                        <textarea className="form-control"
-                                                                  placeholder="Введите описание задачи"
-                                                                  onChange={e => setDescription(e.target.value)}
-                                                                  style={{height: "100px"}}></textarea>
+                                                        <textarea
+                                                            className={errors?.description ? "form-control is-invalid" : "form-control"}
+                                                            placeholder="Введите описание задачи"
+                                                            onChange={e => setDescription(e.target.value)}
+                                                            style={{height: "100px"}}></textarea>
+                                                    <div className="invalid-feedback">{errors?.description}</div>
                                                 </div>
                                             </div>
                                             <div className="row mb-3">
                                                 <label htmlFor="inputDate"
                                                        className="col-sm-2 col-form-label">Выполнить до</label>
                                                 <div className="col-sm-10">
-                                                    <input type="datetime-local" className="form-control"
+                                                    <input type="datetime-local"
+                                                           className={errors?.completeDate ? "form-control is-invalid" : "form-control"}
                                                            onChange={e => setCompleteDate(e.target.value)}
                                                            placeholder="Выполнить до"/>
+                                                    <div className="invalid-feedback">{errors?.completeDate}</div>
                                                 </div>
                                             </div>
                                             <div className="row mb-3">
@@ -309,7 +491,7 @@ export const Project = observer((props) => {
                                     </div>
                                 </div>
                             </div>
-                            {user.isPM && <div className="col-12">
+                            {user.isPM && projects.currentProject.status !== "Завершён" && <div className="col-12">
                                 <div className="card">
                                     <div className="card-body">
                                         <h5 className="card-title">Заявки на вступление в проект</h5>
